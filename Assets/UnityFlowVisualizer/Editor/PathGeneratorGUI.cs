@@ -13,7 +13,7 @@ namespace UnityFlowVisualizer {
 
         [MenuItem("/Flow Visualizer/Total Path Manager")]
         public static void ShowWindow() {
-            EditorWindow.GetWindowWithRect(typeof(PathGeneratorGUI), new Rect(0, 0, 300, 450),false, "Total Path Manager");
+            EditorWindow.GetWindowWithRect(typeof(PathGeneratorGUI), new Rect(0, 0, 300, 435),false, "Total Path Manager");
         }
 
         public void OnEnable() {
@@ -45,10 +45,11 @@ namespace UnityFlowVisualizer {
             GUILayout.Space(5);
 
             GUI.enabled = Env != null;
+            GUILayout.Label("Path Info List");
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
-            GUILayout.Label("No", EditorStyles.toolbarButton);
-            GUILayout.Label("PathColor", EditorStyles.toolbarButton);
-            GUILayout.Label("Edit", EditorStyles.toolbarButton);
+            GUILayout.Label("Color", EditorStyles.toolbarButton,GUILayout.Width(70f));
+            GUILayout.Label("PathName", EditorStyles.toolbarButton, GUILayout.Width(170f));
+            GUILayout.Label("Edit", EditorStyles.toolbarButton, GUILayout.Width(60f));
             GUILayout.EndHorizontal();
             if (Env != null) 
                  scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, false, GUILayout.Width(300), GUILayout.Height(190));
@@ -64,16 +65,27 @@ namespace UnityFlowVisualizer {
                 GUILayout.Label("Path Manager not found", centerStyle);
                 GUILayout.EndArea();
             } else {
-                Rect rect0 = EditorGUILayout.GetControlRect(false, 300);
-                Rect rect1 = new Rect(rect0.x, rect0.y, 300, 150);
+                Rect rect0 = EditorGUILayout.GetControlRect(false, 21 * Env.PathInfoList.Count);
+                Rect rect1 = new Rect(rect0.x, rect0.y, 300, 21 * Env.PathInfoList.Count);
                 GUILayout.BeginArea(rect1);
-                GUILayout.Label("hello,World");
+
+                for(int i = 0; i < Env.PathInfoList.Count; i++) {
+                    Color targetColor = Env.PathInfoList[i].PathColor;
+                    string targetName = Env.PathInfoList[i].PathName;
+                    GUILayout.BeginHorizontal(EditorStyles.toolbar);
+                    GUILayout.Label(ColorToStr(targetColor), BackgroundStyle.GetToolbar(targetColor), GUILayout.Width(69f));
+                    Env.PathInfoList[i].PathName = GUILayout.TextField(targetName, EditorStyles.toolbarTextField, GUILayout.Width(165f));
+                    Env.PathInfoList[i].gameObject.name = Env.PathInfoList[i].PathName;
+                    if (Env.PathInfoList.Count >= 9) { if (GUILayout.Button("Edit", EditorStyles.toolbarButton, GUILayout.Width(49f))) EditButtonClick(i); }
+                    else { if (GUILayout.Button("Edit", EditorStyles.toolbarButton, GUILayout.Width(59f))) EditButtonClick(i); }
+                    GUILayout.EndHorizontal();
+                }
                 GUILayout.EndArea();
             }
             GUILayout.EndScrollView();
 
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
-            GUILayout.Button("New Path", EditorStyles.toolbarButton);
+            if(GUILayout.Button("New Path", EditorStyles.toolbarButton)) NewPathButtonClick();
             GUILayout.Button("PathColor", EditorStyles.toolbarButton);
             GUILayout.EndHorizontal();
 
@@ -82,6 +94,7 @@ namespace UnityFlowVisualizer {
             GuiLine();
             GUILayout.Label(EndTex);
         }
+
 
         void GuiLine(int i_height = 1) {
             Rect rect = EditorGUILayout.GetControlRect(false, i_height);
@@ -94,6 +107,61 @@ namespace UnityFlowVisualizer {
                 GameObject go = new GameObject();
                 Env = go.AddComponent<PathManager>();
                 go.name = "PathManager";
+            }
+        }
+
+        public void EditButtonClick(int index) {
+            Debug.Log(index);
+        }
+
+        public void NewPathButtonClick() {
+            if (Env == null) return;
+            GameObject newOb = new GameObject();
+            newOb.name = "new Path name";
+            newOb.transform.parent = Env.transform;
+            PathInfo newInfo = newOb.AddComponent<PathInfo>();
+            newInfo.PathColor = new Color(UnityEngine.Random.Range(0f, 1f),
+                                          UnityEngine.Random.Range(0f, 1f),
+                                          UnityEngine.Random.Range(0f, 1f), 1f);
+            newInfo.PathName = "new Path name";
+            newInfo.NodeList = new List<PathInfo.Node>();
+            newInfo.ConnectionList = new List<PathInfo.Connection>();
+            Env.PathInfoList.Add(newInfo);
+        }
+
+        public static string ColorToStr(Color color) {
+            string r = ( (int)( color.r * 255 ) ).ToString("X2");
+            string g = ( (int)( color.g * 255 ) ).ToString("X2");
+            string b = ( (int)( color.b * 255 ) ).ToString("X2");
+
+            string result = string.Format("#{0}{1}{2}", r, g, b);
+            return result;
+        }
+
+        public static class BackgroundStyle {
+            private static GUIStyle style = new GUIStyle();
+            private static GUIStyle style2 = new GUIStyle("ToolbarButton");
+            private static GUIStyle style3 = new GUIStyle("ToolbarTextField");
+            private static Texture2D texture = new Texture2D(1, 1);
+            public static GUIStyle Get(Color color) {
+                texture.SetPixel(0, 0, color);
+                texture.Apply();
+                style.normal.background = texture;
+                return style;
+            }
+
+            public static GUIStyle GetToolbar(Color color) {
+                texture.SetPixel(0, 0, color);
+                texture.Apply();
+                style2.normal.background = texture;
+                return style2;
+            }
+
+            public static GUIStyle GetToolbarTextField(Color color) {
+                texture.SetPixel(0, 0, color);
+                texture.Apply();
+                style3.normal.background = texture;
+                return style3;
             }
         }
     }
