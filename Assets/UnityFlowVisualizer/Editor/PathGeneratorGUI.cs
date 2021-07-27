@@ -86,7 +86,7 @@ namespace UnityFlowVisualizer {
 
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
             if(GUILayout.Button("New Path", EditorStyles.toolbarButton)) NewPathButtonClick();
-            GUILayout.Button("PathColor", EditorStyles.toolbarButton);
+            if(GUILayout.Button("Path Editor", EditorStyles.toolbarButton)) PathEditButtonClick();
             GUILayout.EndHorizontal();
 
 
@@ -112,6 +112,12 @@ namespace UnityFlowVisualizer {
 
         public void EditButtonClick(int index) {
             Debug.Log(index);
+            this.Close();
+        }
+
+        public void PathEditButtonClick() {
+            PathEditorGUI.ShowWindow();
+            this.Close();
         }
 
         public void NewPathButtonClick() {
