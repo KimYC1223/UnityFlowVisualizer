@@ -45,10 +45,10 @@ namespace UnityFlowVisualizer {
             GUILayout.Space(5);
 
             GUI.enabled = Env != null;
-            GUILayout.Label("Path Info List");
+            GUILayout.Label("Path group info list");
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
             GUILayout.Label("Color", EditorStyles.toolbarButton,GUILayout.Width(70f));
-            GUILayout.Label("PathName", EditorStyles.toolbarButton, GUILayout.Width(170f));
+            GUILayout.Label("Path group name", EditorStyles.toolbarButton, GUILayout.Width(170f));
             GUILayout.Label("Edit", EditorStyles.toolbarButton, GUILayout.Width(60f));
             GUILayout.EndHorizontal();
             if (Env != null) 
@@ -85,8 +85,8 @@ namespace UnityFlowVisualizer {
             GUILayout.EndScrollView();
 
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
-            if(GUILayout.Button("New Path", EditorStyles.toolbarButton)) NewPathButtonClick();
-            if(GUILayout.Button("Path Editor", EditorStyles.toolbarButton)) PathEditButtonClick();
+            if(GUILayout.Button("New group", EditorStyles.toolbarButton)) NewPathButtonClick();
+            if(GUILayout.Button("Group editor", EditorStyles.toolbarButton)) PathEditButtonClick();
             GUILayout.EndHorizontal();
 
 
@@ -112,10 +112,14 @@ namespace UnityFlowVisualizer {
 
         public void EditButtonClick(int index) {
             Debug.Log(index);
+            Selection.objects = new UnityEngine.Object[] { Env.PathInfoList[index] };
+            PathEditorGUI.Target = Env.PathInfoList[index];
+            PathEditorGUI.ShowWindow();
             this.Close();
         }
 
         public void PathEditButtonClick() {
+            PathEditorGUI.Target = null;
             PathEditorGUI.ShowWindow();
             this.Close();
         }
@@ -123,15 +127,16 @@ namespace UnityFlowVisualizer {
         public void NewPathButtonClick() {
             if (Env == null) return;
             GameObject newOb = new GameObject();
-            newOb.name = "new Path name";
+            newOb.name = "New path group name";
             newOb.transform.parent = Env.transform;
             PathInfo newInfo = newOb.AddComponent<PathInfo>();
             newInfo.PathColor = new Color(UnityEngine.Random.Range(0f, 1f),
                                           UnityEngine.Random.Range(0f, 1f),
                                           UnityEngine.Random.Range(0f, 1f), 1f);
-            newInfo.PathName = "new Path name";
-            newInfo.NodeList = new List<PathInfo.Node>();
-            newInfo.ConnectionList = new List<PathInfo.Connection>();
+            newInfo.PathName = "New path group name";
+            newInfo.NodeList = new List<Node>();
+            newInfo.ConnectionList = new List<Connection>();
+
             Env.PathInfoList.Add(newInfo);
         }
 

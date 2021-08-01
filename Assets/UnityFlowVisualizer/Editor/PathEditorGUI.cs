@@ -13,19 +13,21 @@ namespace UnityFlowVisualizer {
 
         [MenuItem("/Flow Visualizer/Path Editor")]
         public static void ShowWindow() {
-            EditorWindow.GetWindowWithRect(typeof(PathEditorGUI), new Rect(0, 0, 300, 500), false, "Path Editor");
+            EditorWindow.GetWindowWithRect(typeof(PathEditorGUI), new Rect(0, 0, 800, 600), true, "Path Editor");
         }
 
         public void OnEnable() {
             LogoTex = (Texture2D)Resources.Load("UnityFlowVisualizer/Logo/FlowVisualizerLogo", typeof(Texture2D));
             EndTex = (Texture2D)Resources.Load("UnityFlowVisualizer/Logo/FlowVisualizerLogo2", typeof(Texture2D));
-            // Remove delegate listener if it has previously
-            // been assigned.
         }
 
-
-
         private void OnGUI() {
+            try { 
+                PathInfo info = Selection.activeGameObject.GetComponent<PathInfo>();
+                if (info != null) Target = info;
+                else Target = null;
+            } catch(System.Exception e) { e.ToString(); }
+
             GUILayout.Label(LogoTex);
             GUILayout.Label("  Unity Flow Visualizer   |   유니티 유량 시각화 도구", EditorStyles.boldLabel);
             GUILayout.Label("  Developed by KimYC1223");
@@ -33,28 +35,28 @@ namespace UnityFlowVisualizer {
             GUILayout.Space(5);
             GUI.enabled = Target != null;
             GUILayout.BeginHorizontal();
-            
-            GUILayout.Label("gg");
+
+            GUILayout.Label("Name", GUILayout.Width(40f));
+            if(Target != null) Target.name = GUILayout.TextField(Target.name, GUILayout.Width(165f));
+            else GUILayout.TextField("", GUILayout.Width(165f));
+            GUILayout.Space(30);
+
+            GUILayout.Label("Path color", GUILayout.Width(60f));
+            if (Target != null) Target.PathColor = EditorGUILayout.ColorField(Target.PathColor, GUILayout.Width(80f));
+            else EditorGUILayout.ColorField(Color.white, GUILayout.Width(80f));
+            GUILayout.Space(30);
+
+            GUILayout.Label("Path thickness ", GUILayout.Width(90f));
+            if (Target != null) {
+                Target.Thickness = EditorGUILayout.FloatField(Target.Thickness, GUILayout.Width(80f));
+                Target.Thickness = ( Target.Thickness <= 0f ) ? 0.001f : ( Target.Thickness >= 1000f ) ? 1000f : Target.Thickness;
+            } else EditorGUILayout.FloatField(0f, GUILayout.Width(80f));
+            GUILayout.Space(30);
+
             GUILayout.EndHorizontal();
 
             GUI.enabled = true;
             GUILayout.Label(EndTex);
-        }
-        void OnDrawGizmos() {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawSphere(targetPosition, 1);
-        }
-
-        private void OnFocus() {
-            SceneView.onSceneGUIDelegate = this.OnSceneGUI;
-            Debug.Log("asd1");
-            if (SceneView.lastActiveSceneView) SceneView.lastActiveSceneView.Repaint();
-        }
-
-        private void OnLostFocus() {
-            Debug.Log("asd2");
-            SceneView.onSceneGUIDelegate = null;
-            if (SceneView.lastActiveSceneView) SceneView.lastActiveSceneView.Repaint();
         }
 
         void GuiLine(int i_height = 1) {
@@ -63,23 +65,13 @@ namespace UnityFlowVisualizer {
             EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 1));
         }
 
-        void OnSceneGUI(SceneView sceneView) {
-            //Debug.Log("asdasd");
-            //// Do your drawing here using Handles.
-            //Handles.BeginGUI();
-            //Handles.Slider(targetPosition, Vector3.right); //X 축
-            //Handles.Slider(targetPosition, Vector3.up); //Y 축
-            //Handles.Slider(targetPosition, Vector3.forward); //Z 축
-            //SceneView.lastActiveSceneView.Repaint();
-            //HandleUtility.Repaint();
-            //Handles.EndGUI();
 
-            Handles.BeginGUI();
-            EditorGUILayout.LabelField("SceneView GUI Test");
-            if (GUILayout.Button("Disable SceneView Button", GUILayout.Width(228))) {
-                Debug.Log("SceneView ButtonClick");
-            }
-            Handles.EndGUI();
+        void OnSelectionChange() {
+            try {
+                PathInfo info = Selection.activeGameObject.GetComponent<PathInfo>();
+                if (info != null) Target = info;
+                else Target = null;
+            } catch (System.Exception e) { e.ToString(); }
         }
     }
 }

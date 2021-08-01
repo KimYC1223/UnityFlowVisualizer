@@ -9,8 +9,13 @@ namespace UnityFlowVisualizer {
         public static PathManager Instance;
         public List<PathInfo> PathInfoList;
 
+        Coroutine myRoutine = null;
+
         public void OnEnable() {
-            StopAllCoroutines();
+            if(myRoutine != null) {
+                StopCoroutine(myRoutine);
+                myRoutine = null;
+            }
             PathInfo[] childs = this.transform.GetComponentsInChildren<PathInfo>();
             PathInfoList = new List<PathInfo>();
             if(childs != null && childs.Length > 0)
@@ -18,7 +23,13 @@ namespace UnityFlowVisualizer {
                     PathInfoList.Add(childs[i]);
             this.gameObject.name = "PathManager";
             Instance = this;
-            StartCoroutine(checkList());
+            myRoutine = StartCoroutine(checkList());
+        }
+
+        public void Update() {
+            this.transform.position = new Vector3(0f,0f,0f);
+            this.transform.rotation = new Quaternion(0f, 0f, 0f, 0f);
+            this.transform.localScale = new Vector3(1f, 1f, 1f);
         }
 
 
