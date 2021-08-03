@@ -7,6 +7,7 @@ namespace UnityFlowVisualizer {
         public int Index;
         public string Name;
         public Vector3 Pos;
-        public GameObject PinnedObject;
+        public Transform PinnedObject;
+        public int ID;
     }
 }

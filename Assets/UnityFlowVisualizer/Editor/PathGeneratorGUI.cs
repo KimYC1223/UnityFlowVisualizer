@@ -111,7 +111,6 @@ namespace UnityFlowVisualizer {
         }
 
         public void EditButtonClick(int index) {
-            Debug.Log(index);
             Selection.objects = new UnityEngine.Object[] { Env.PathInfoList[index] };
             PathEditorGUI.Target = Env.PathInfoList[index];
             PathEditorGUI.ShowWindow();
@@ -147,6 +146,10 @@ namespace UnityFlowVisualizer {
 
             string result = string.Format("#{0}{1}{2}", r, g, b);
             return result;
+        }
+
+        void OnSelectionChange() {
+            this.Repaint();
         }
 
         public static class BackgroundStyle {

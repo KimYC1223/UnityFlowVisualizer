@@ -1,18 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 namespace UnityFlowVisualizer {
     [ExecuteInEditMode]
     public class PathManager : MonoBehaviour
     {
+        private Tool LastTool = Tool.None;
         public static PathManager Instance;
         public List<PathInfo> PathInfoList;
 
         Coroutine myRoutine = null;
 
         public void OnEnable() {
-            if(myRoutine != null) {
+            LastTool = Tools.current;
+            Tools.current = Tool.None;
+
+            if (myRoutine != null) {
                 StopCoroutine(myRoutine);
                 myRoutine = null;
             }
@@ -24,6 +29,10 @@ namespace UnityFlowVisualizer {
             this.gameObject.name = "PathManager";
             Instance = this;
             myRoutine = StartCoroutine(checkList());
+        }
+
+        public void OnDisable() {
+            Tools.current = LastTool;
         }
 
         public void Update() {

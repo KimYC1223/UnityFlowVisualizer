@@ -79,36 +79,45 @@ namespace UnityFlowVisualizer {
         public IEnumerator CheckParent() {
             while (true) {
                 yield return 0.5f;
-                bool isNodeParent = false, isConnectionParent = false, isPathParent = false;
-                for (int i = 0; i < this.transform.childCount; i++) {
-                    if (isNodeParent && isConnectionParent && isPathParent) break;
-
-                    string childName = this.transform.GetChild(i).name;
-                    if (childName == "Nodes") isNodeParent = true;
-                    else if (childName == "Connections") isConnectionParent = true;
-                    else if (childName == "Paths") isPathParent = true;
+                bool flag = true;
+                try {
+                    PathManager pm = this.transform.parent.GetComponent<PathManager>();
+                } catch(System.Exception e) { e.ToString();
+                    Debug.LogError("The Path Info script should have a parent with a Path Manager component.");
+                    flag = false;
                 }
-                if (!( isNodeParent && isConnectionParent && isPathParent )) {
-                    if (!isNodeParent) {
-                        GameObject newOb = new GameObject();
-                        newOb.transform.parent = this.transform;
-                        newOb.name = "Nodes";
-                        NodeParent = newOb;
-                        NodeList = new List<Node>();
+                if(flag) {
+                    bool isNodeParent = false, isConnectionParent = false, isPathParent = false;
+                    for (int i = 0; i < this.transform.childCount; i++) {
+                        if (isNodeParent && isConnectionParent && isPathParent) break;
+
+                        string childName = this.transform.GetChild(i).name;
+                        if (childName == "Nodes") isNodeParent = true;
+                        else if (childName == "Connections") isConnectionParent = true;
+                        else if (childName == "Paths") isPathParent = true;
                     }
-                    if (!isConnectionParent) {
-                        GameObject newOb = new GameObject();
-                        newOb.transform.parent = this.transform;
-                        newOb.name = "Connections";
-                        ConnectionParent = newOb;
-                        ConnectionList = new List<Connection>();
-                    }
-                    if (!isPathParent) {
-                        GameObject newOb = new GameObject();
-                        newOb.transform.parent = this.transform;
-                        newOb.name = "Paths";
-                        PathParent = newOb;
-                        PathList = new List<Path>();
+                    if (!( isNodeParent && isConnectionParent && isPathParent )) {
+                        if (!isNodeParent) {
+                            GameObject newOb = new GameObject();
+                            newOb.transform.parent = this.transform;
+                            newOb.name = "Nodes";
+                            NodeParent = newOb;
+                            NodeList = new List<Node>();
+                        }
+                        if (!isConnectionParent) {
+                            GameObject newOb = new GameObject();
+                            newOb.transform.parent = this.transform;
+                            newOb.name = "Connections";
+                            ConnectionParent = newOb;
+                            ConnectionList = new List<Connection>();
+                        }
+                        if (!isPathParent) {
+                            GameObject newOb = new GameObject();
+                            newOb.transform.parent = this.transform;
+                            newOb.name = "Paths";
+                            PathParent = newOb;
+                            PathList = new List<Path>();
+                        }
                     }
                 }
             }
