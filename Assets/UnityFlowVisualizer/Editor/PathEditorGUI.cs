@@ -128,7 +128,14 @@ namespace UnityFlowVisualizer {
             GUILayout.BeginHorizontal();
             GUILayout.BeginVertical();
 
+            GUILayout.BeginHorizontal();
             GUILayout.Label("Connection list", EditorStyles.boldLabel);
+
+            GUI.enabled = !( Target == null || Target.NodeList.Count < 2);
+            if (GUILayout.Button("New Connection button", GUILayout.Width(150f))) NewConnectionButton();
+            GUI.enabled = Target != null;
+            GUILayout.EndHorizontal();
+
 
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
             GUILayout.Label("No", EditorStyles.toolbarButton, GUILayout.Width(55f));
@@ -155,11 +162,11 @@ namespace UnityFlowVisualizer {
                 GUILayout.BeginArea(rect1);
 
                 for (int i = 0; i < Target.NodeList.Count; i++) {
-                    string targetName = Target.NodeList[i].Name;
+                    string targetName = Target.ConnectionList[i].Name;
                     GUILayout.BeginHorizontal(EditorStyles.toolbar);
-                    Target.NodeList[i].Index = i;
-                    GUILayout.Label(Target.NodeList[i].ID.ToString(), GUILayout.Width(75f));
-                    Target.NodeList[i].Name = GUILayout.TextField(targetName, EditorStyles.toolbarTextField, GUILayout.Width(197f));
+                    Target.ConnectionList[i].Index = i;
+                    GUILayout.Label(Target.ConnectionList[i].ID.ToString(), GUILayout.Width(75f));
+                    Target.ConnectionList[i].Name = GUILayout.TextField(targetName, EditorStyles.toolbarTextField, GUILayout.Width(197f));
                     Target.NodeList[i].transform.localPosition = EditorGUILayout.Vector3Field("", Target.NodeList[i].transform.localPosition, GUILayout.Width(265f));
                     Target.NodeList[i].PinnedObject = EditorGUILayout.ObjectField("", Target.NodeList[i].PinnedObject, typeof(Transform), true, GUILayout.Width(147f)) as Transform;
                     if (Target.NodeList.Count >= 7) { if (GUILayout.Button("Delete", EditorStyles.toolbarButton, GUILayout.Width(89f))) DeleteNodeButton(i); } else { if (GUILayout.Button("Delete", EditorStyles.toolbarButton, GUILayout.Width(99f))) DeleteNodeButton(i); }
@@ -211,7 +218,7 @@ namespace UnityFlowVisualizer {
             Target.NodeList.Add(newNode);
         }
 
-        public void NewLinkButton() {
+        public void NewConnectionButton() {
 
         }
 
@@ -225,7 +232,7 @@ namespace UnityFlowVisualizer {
             DestroyImmediate(DelOb);
         }
 
-        public void DeleteLinkButton(int index) {
+        public void DeleteConnectionButton(int index) {
 
         }
 

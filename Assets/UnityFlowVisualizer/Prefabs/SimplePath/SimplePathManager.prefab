@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &9037299437589142518
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9037299437589142516}
+  - component: {fileID: 1698427412864952369}
+  m_Layer: 0
+  m_Name: SimplePathManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9037299437589142516
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9037299437589142518}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1698427412864952369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9037299437589142518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dcfef9810240444dba3c5646fb41a73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShotPrefabs:
+  - {fileID: 2661545866513325942, guid: 87acfb8e65cb4754cabdb4aaf2906dd8, type: 3}
+  - {fileID: 9025619776021117071, guid: f75c9d6ea25daa748be735ec8b9d7a9a, type: 3}
+  - {fileID: 646838377751257057, guid: 7e5f238a69cae734b8ac2330d1ce5e51, type: 3}
+  - {fileID: 894587893846267871, guid: d5e4ed97319b40a47b384998f97bba9d, type: 3}
+  - {fileID: 8710172383324843951, guid: dbcc7387f13871e41be937865060e7d7, type: 3}
+  - {fileID: 1651846684505659833, guid: bf6dd1827f807b14fa306d5194b51e43, type: 3}
+  - {fileID: 1318968336937061283, guid: a6b9bf0d5150df84796a531572eed296, type: 3}
+  - {fileID: 7228673443696209471, guid: 9c3c9b97be53ac8449ca415b5900b2b4, type: 3}
+  - {fileID: 5303176017679695965, guid: 5524ffae9afee1f45adc04ec34d32b32, type: 3}
+  PathPrefab: {fileID: 6794964406645840443, guid: 3f5eed3f43bc2ff488bae6c6927dd4ad,
+    type: 3}
+  PathObjectList: []
+  PathList: []

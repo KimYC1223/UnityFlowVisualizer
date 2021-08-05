@@ -13,5 +13,6 @@ namespace UnityFlowVisualizer {
         public int End;
         public int EndID;
         public CON_TYPE Type;
+        public int ID;
     }
 }
