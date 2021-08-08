@@ -44,7 +44,7 @@ namespace UnityFlowVisualizer {
 
         public IEnumerator checkList() {
             while(true) {
-                yield return 0.5f;
+                yield return new WaitForSeconds(1f);
                 PathInfo[] childs = this.transform.GetComponentsInChildren<PathInfo>();
                 PathInfoList = new List<PathInfo>();
                 if (childs != null && childs.Length > 0)

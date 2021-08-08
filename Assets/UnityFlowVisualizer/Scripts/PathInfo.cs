@@ -18,6 +18,7 @@ namespace UnityFlowVisualizer {
         public GameObject NodeParent;
         public GameObject ConnectionParent;
         public GameObject PathParent;
+        public GameObject CornerParent;
 
         Coroutine myRoutine = null;
 
@@ -26,16 +27,17 @@ namespace UnityFlowVisualizer {
                 StopCoroutine(myRoutine);
                 myRoutine = null;
             }
-            bool isNodeParent = false, isConnectionParent = false, isPathParent = false;
+            bool isNodeParent = false, isConnectionParent = false, isPathParent = false, isCornerParent = false;
             for(int i = 0; i < this.transform.childCount; i++) {
-                if (isNodeParent && isConnectionParent && isPathParent) break;
+                if (isNodeParent && isConnectionParent && isPathParent && isCornerParent) break;
 
                 string childName = this.transform.GetChild(i).name;
                 if (childName == "Nodes") isNodeParent = true;
                 else if (childName == "Connections") isConnectionParent = true;
                 else if (childName == "Paths") isPathParent = true;
+                else if (childName == "Corners") isCornerParent = true;
             }
-            if(!( isNodeParent && isConnectionParent && isPathParent )) {
+            if(!( isNodeParent && isConnectionParent && isPathParent && isCornerParent)) {
                 NodeList = new List<Node>();
                 ConnectionList = new List<Connection>();
                 PathList = new List<Path>();
@@ -71,6 +73,13 @@ namespace UnityFlowVisualizer {
                     Path[] array = PathParent.GetComponentsInChildren<Path>();
                     foreach (Path element in array)
                         PathList.Add(element);
+                }
+
+                if (!isCornerParent) {
+                    GameObject newOb = new GameObject();
+                    newOb.transform.parent = this.transform;
+                    newOb.name = "Corners";
+                    CornerParent = newOb;
                 }
             }
             myRoutine = StartCoroutine(CheckParent());

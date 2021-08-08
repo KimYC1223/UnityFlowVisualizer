@@ -32,14 +32,22 @@ namespace UnityFlowVisualizer {
             public float Speed;
             public float threshold = 0;
 
+            private float distance = 0;
+            private float old_distance = 0;
+
             public void Start() {
                 this.transform.LookAt(EndPos);
                 threshold = ( ( Speed / 4 ) <= 0.3f ) ? 0.3f : Speed / 4;
+                old_distance = Vector3.Distance(this.transform.position, EndPos);
             }
-            public void Update() {
+            public void FixedUpdate() {
                 this.transform.position += this.transform.forward * Speed;
+                distance = Vector3.Distance(this.transform.position, EndPos);
                 if (Vector3.Distance(this.transform.position,EndPos) < threshold)
                     Destroy(this.gameObject);
+                if (old_distance < distance)
+                    Destroy(this.gameObject);
+                else old_distance = distance;
             }
         }
 
@@ -138,7 +146,7 @@ namespace UnityFlowVisualizer {
             PathObjectList.Clear();
         }
     
-        public GameObject Shooting(SimplePath path, SHOT_TYPE type = SHOT_TYPE.FLOW_BLUE, float speed = 0.2f) {
+        public GameObject Shooting(SimplePath path, float speed = 0.2f, SHOT_TYPE type = SHOT_TYPE.FLOW_BLUE) {
             GameObject returnObject = Instantiate(ShotPrefabs[(int)type], path.StartPos,Quaternion.identity);
             SimpleShot shot = returnObject.AddComponent<SimpleShot>();
             shot.StartPos = path.StartPos;
@@ -147,7 +155,7 @@ namespace UnityFlowVisualizer {
             return returnObject;
         }
 
-        public GameObject Shooting(Transform start, Transform end, SHOT_TYPE type = SHOT_TYPE.FLOW_BLUE, float speed =0.2f) {
+        public GameObject Shooting(Transform start, Transform end, float speed = 0.2f, SHOT_TYPE type = SHOT_TYPE.FLOW_BLUE) {
             GameObject returnObject = Instantiate(ShotPrefabs[(int)type], start.position, Quaternion.identity);
             SimpleShot shot = returnObject.AddComponent<SimpleShot>();
             shot.StartPos = start.position;
@@ -156,7 +164,7 @@ namespace UnityFlowVisualizer {
             return returnObject;
         }
 
-        public GameObject Shooting(Vector3 start, Vector3 end, SHOT_TYPE type = SHOT_TYPE.FLOW_BLUE, float speed = 0.2f) {
+        public GameObject Shooting(Vector3 start, Vector3 end, float speed = 0.2f, SHOT_TYPE type = SHOT_TYPE.FLOW_BLUE) {
             GameObject returnObject = Instantiate(ShotPrefabs[(int)type], start, Quaternion.identity);
             SimpleShot shot = returnObject.AddComponent<SimpleShot>();
             shot.StartPos = start;
