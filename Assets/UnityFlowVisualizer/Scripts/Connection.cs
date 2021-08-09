@@ -7,6 +7,7 @@ namespace UnityFlowVisualizer {
     public enum CON_TYPE {PRESET, PLAIN, FREE};
     public enum PRESET_TYPE_2_CORNER {X, Y, Z};
     public enum PRESET_TYPE_1_CORNER {START,END};
+    public enum PRESET_TYPE_3_CORNER {XY1, XY2, YZ1, YZ2, XZ1, XZ2};
     [ExecuteInEditMode]
     public class Connection : MonoBehaviour
     {
@@ -22,7 +23,10 @@ namespace UnityFlowVisualizer {
         public int ID;
         public CON_TYPE ConType;
         public PRESET_TYPE_1_CORNER PresetType1 = PRESET_TYPE_1_CORNER.START;
-        public PRESET_TYPE_2_CORNER PresetType2 = PRESET_TYPE_2_CORNER.Z;
+        public PRESET_TYPE_2_CORNER PresetType2 = PRESET_TYPE_2_CORNER.Y;
+        public PRESET_TYPE_3_CORNER PresetType3 = PRESET_TYPE_3_CORNER.XY1;
+        public Vector3 Preset2Handler;
+        public Vector3 Preset3Handler;
         public List<Corner> CornerList;
         public PathInfo ParentPathInfo;
 
@@ -43,7 +47,7 @@ namespace UnityFlowVisualizer {
                 CornerList = new List<Corner>();
                 if (childs != null && childs.Length > 0)
                     for (int i = 0; i < childs.Length; i++)
-                        if (this.GetInstanceID() == childs[i].ParentID)
+                        if (this == childs[i].Connection)
                             CornerList.Add(childs[i]);
                 CornerCount = CornerList.Count;
             } catch(System.Exception e) { e.ToString(); } 
@@ -94,7 +98,7 @@ namespace UnityFlowVisualizer {
                 CornerList = new List<Corner>();
                 if (childs != null && childs.Length > 0)
                     for (int i = 0; i < childs.Length; i++)
-                        if (this.GetInstanceID() == childs[i].ParentID)
+                        if (this == childs[i].Connection)
                             CornerList.Add(childs[i]);
                 CornerCount = CornerList.Count;
             }

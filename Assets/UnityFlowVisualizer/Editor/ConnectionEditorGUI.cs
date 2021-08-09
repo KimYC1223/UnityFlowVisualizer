@@ -121,7 +121,6 @@ namespace UnityFlowVisualizer {
                     }
                     Target.CornerCount = NewType;
                     GUILayout.EndHorizontal();
-                    GUI.enabled = Target.CornerCount > 0;
                     string[] con_type = new string[] { "PRESET", "PLAIN", "FREE" };
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Connection type", GUILayout.Width(110f));
@@ -131,13 +130,12 @@ namespace UnityFlowVisualizer {
                         ( NewConType == (int)CON_TYPE.PRESET && Target.ConType == CON_TYPE.PLAIN  ) ||
                         ( NewConType == (int)CON_TYPE.PRESET && Target.ConType == CON_TYPE.FREE   ) ) {
                         CreateCorner(Target.CornerCount);
-                    } else if(NewConType == 0 && Target.CornerCount > 2) {
-                        Target.CornerCount = 2;
+                    } else if(NewConType == 0 && Target.CornerCount > 3) {
+                        Target.CornerCount = 3;
                         CreateCorner(Target.CornerCount);
                     }
                     Target.ConType = (CON_TYPE)NewConType;
                     GUILayout.EndHorizontal();
-                    GUI.enabled = true;
 
                     GUILayout.Space(10);
                     GuiLine();
@@ -216,20 +214,123 @@ namespace UnityFlowVisualizer {
                             
                             GUILayout.EndHorizontal();
 
-                        } else {
-                            for (int i = 0; i < Target.CornerList.Count; i++) {
-                                GUILayout.BeginHorizontal(EditorStyles.toolbar);
-                                GUILayout.Label(i.ToString(), centerStyle2, GUILayout.Width(43f));
-                                EditorGUILayout.Vector3Field("", Target.CornerList[i].transform.position, GUILayout.Width(176f));
-                                if (Target.CornerList.Count <= 5) {
-                                    if (GUILayout.Button("Delete", EditorStyles.toolbarButton, GUILayout.Width(70f))) { DeleteCorner(i); }
-                                } else {
-                                    if (GUILayout.Button("Delete", EditorStyles.toolbarButton, GUILayout.Width(55f))) { DeleteCorner(i); }
+                        } else if (Target.CornerList.Count == 2) {
+                            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+                            GUILayout.Label(0.ToString(), centerStyle2, GUILayout.Width(43f));
+                            string[] con_type2 = new string[] { "X-Axis parallel", "Y-Axis parallel", "Z-Axis parallel" };
+                            int presetType2 = EditorGUILayout.Popup((int)Target.PresetType2, con_type2, GUILayout.Width(176f));
+
+                            if (presetType2 != (int)Target.PresetType2) {
+                                Vector3 centerPos = ( Target.StartPos.position + Target.EndPos.position ) / 2;
+                                if (presetType2 == (int)PRESET_TYPE_2_CORNER.X) {
+                                    Target.CornerList[0].transform.position = new Vector3(Target.StartPos.position.x,
+                                                                                          centerPos.y,
+                                                                                          centerPos.z);
+                                    Target.CornerList[1].transform.position = new Vector3(Target.EndPos.position.x,
+                                                                                          centerPos.y,
+                                                                                          centerPos.z);
+                                } else if (presetType2 == (int)PRESET_TYPE_2_CORNER.Y) {
+                                    Target.CornerList[0].transform.position = new Vector3(centerPos.x,
+                                                                                          Target.StartPos.position.y,
+                                                                                          centerPos.z);
+                                    Target.CornerList[1].transform.position = new Vector3(centerPos.x,
+                                                                                          Target.EndPos.position.y,
+                                                                                          centerPos.z);
+                                } else if (presetType2 == (int)PRESET_TYPE_2_CORNER.Z) {
+                                    Target.CornerList[0].transform.position = new Vector3(centerPos.x,
+                                                                                          centerPos.y,
+                                                                                          Target.StartPos.position.z);
+                                    Target.CornerList[1].transform.position = new Vector3(centerPos.x,
+                                                                                          centerPos.y,
+                                                                                          Target.EndPos.position.z);
                                 }
-                                GUILayout.EndHorizontal();
+                                Target.Preset2Handler = ( Target.StartPos.position + Target.EndPos.position ) / 2;
+                                Target.PresetType2 = (PRESET_TYPE_2_CORNER)presetType2;
+                                UnityEditor.EditorApplication.QueuePlayerLoopUpdate();
+                                UnityEditor.SceneView.RepaintAll();
                             }
+                            if (GUILayout.Button("Delete", EditorStyles.toolbarButton, GUILayout.Width(70f))) { DeleteCorner(0); }
+                            GUILayout.EndHorizontal();
+                        } else if (Target.CornerList.Count == 3) {
+                            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+                            GUILayout.Label(0.ToString(), centerStyle2, GUILayout.Width(43f));
+                            string[] con_type3 = new string[] { "XY-Plane parallel 1", "XY-Plane parallel 2",
+                                                                "YZ-Plane parallel 1", "YZ-Plane parallel 2",
+                                                                "XZ-Plane parallel 1", "XZ-Plane parallel 2" };
+                            int presetType3 = EditorGUILayout.Popup((int)Target.PresetType3, con_type3, GUILayout.Width(176f));
+
+                            if (presetType3 != (int)Target.PresetType3) {
+                                Vector3 centerPos = ( Target.StartPos.position + Target.EndPos.position ) / 2;
+                                if (presetType3 == (int)PRESET_TYPE_3_CORNER.XY1) {
+                                    Target.CornerList[0].transform.position = new Vector3(Target.StartPos.position.x,
+                                                                                          Target.StartPos.position.y,
+                                                                                          centerPos.z);
+                                    Target.CornerList[1].transform.position = new Vector3(Target.EndPos.position.x,
+                                                                                          Target.StartPos.position.y,
+                                                                                          centerPos.z);
+                                    Target.CornerList[2].transform.position = new Vector3(Target.EndPos.position.x,
+                                                                                          Target.EndPos.position.y,
+                                                                                          centerPos.z);
+                                } else if (presetType3 == (int)PRESET_TYPE_3_CORNER.XY2) {
+                                    Target.CornerList[0].transform.position = new Vector3(Target.StartPos.position.x,
+                                                                                          Target.StartPos.position.y,
+                                                                                          centerPos.z);
+                                    Target.CornerList[1].transform.position = new Vector3(Target.StartPos.position.x,
+                                                                                          Target.EndPos.position.y,
+                                                                                          centerPos.z);
+                                    Target.CornerList[2].transform.position = new Vector3(Target.EndPos.position.x,
+                                                                                          Target.EndPos.position.y,
+                                                                                          centerPos.z);
+                                } else if (presetType3 == (int)PRESET_TYPE_3_CORNER.YZ1) {
+                                    Target.CornerList[0].transform.position = new Vector3(centerPos.x,
+                                                                                          Target.StartPos.position.y,
+                                                                                          Target.StartPos.position.z);
+                                    Target.CornerList[1].transform.position = new Vector3(centerPos.x,
+                                                                                          Target.EndPos.position.y,
+                                                                                          Target.StartPos.position.z);
+                                    Target.CornerList[2].transform.position = new Vector3(centerPos.x,
+                                                                                          Target.EndPos.position.y,
+                                                                                          Target.EndPos.position.z);
+                                } else if (presetType3 == (int)PRESET_TYPE_3_CORNER.YZ2) {
+                                    Target.CornerList[0].transform.position = new Vector3(centerPos.x,
+                                                                                          Target.StartPos.position.y,
+                                                                                          Target.StartPos.position.z);
+                                    Target.CornerList[1].transform.position = new Vector3(centerPos.x,
+                                                                                          Target.StartPos.position.y,
+                                                                                          Target.EndPos.position.z);
+                                    Target.CornerList[2].transform.position = new Vector3(centerPos.x,
+                                                                                          Target.EndPos.position.y,
+                                                                                          Target.EndPos.position.z);
+                                } else if (presetType3 == (int)PRESET_TYPE_3_CORNER.XZ1) {
+                                    Target.CornerList[0].transform.position = new Vector3(Target.StartPos.position.x,
+                                                                                          centerPos.y,
+                                                                                          Target.StartPos.position.z);
+                                    Target.CornerList[1].transform.position = new Vector3(Target.EndPos.position.x,
+                                                                                          centerPos.y,
+                                                                                          Target.StartPos.position.z);
+                                    Target.CornerList[2].transform.position = new Vector3(Target.EndPos.position.x,
+                                                                                          centerPos.y,
+                                                                                          Target.EndPos.position.z);
+                                } else if (presetType3 == (int)PRESET_TYPE_3_CORNER.XZ2) {
+                                    Target.CornerList[0].transform.position = new Vector3(Target.StartPos.position.x,
+                                                                                          centerPos.y,
+                                                                                          Target.StartPos.position.z);
+                                    Target.CornerList[1].transform.position = new Vector3(Target.StartPos.position.x,
+                                                                                          centerPos.y,
+                                                                                          Target.EndPos.position.z);
+                                    Target.CornerList[2].transform.position = new Vector3(Target.EndPos.position.x,
+                                                                                          centerPos.y,
+                                                                                          Target.EndPos.position.z);
+                                }
+                                Target.Preset3Handler = Target.CornerList[1].transform.position;
+                                Target.PresetType3 = (PRESET_TYPE_3_CORNER)presetType3;
+                                UnityEditor.EditorApplication.QueuePlayerLoopUpdate();
+                                UnityEditor.SceneView.RepaintAll();
+                            }
+                            if (GUILayout.Button("Delete", EditorStyles.toolbarButton, GUILayout.Width(70f))) { DeleteCorner(0); }
+                            GUILayout.EndHorizontal();
                         }
-                        
+
                     }
 
                     GUILayout.EndArea();
@@ -264,8 +365,14 @@ namespace UnityFlowVisualizer {
         }
 
         public void CreateCorner(int NewType) {
-            if (Target.ConType == CON_TYPE.PRESET && NewType > 2)
-                NewType = 2;
+            if (Target.ConType == CON_TYPE.PRESET && NewType > 3)
+                NewType = 3;
+
+            if (Target.ConType == CON_TYPE.PRESET || Target.CornerList.Count == 2) {
+                Target.Preset2Handler = ( Target.StartPos.position + Target.EndPos.position ) / 2;
+            } else if (Target.ConType == CON_TYPE.PRESET || Target.CornerList.Count == 3) {
+                Target.Preset3Handler = Target.CornerList[1].transform.position;
+            }
 
             for (int i = 0; i < Target.CornerList.Count; i++) {
                 GameObject go = Target.CornerList[i].gameObject;
@@ -282,7 +389,6 @@ namespace UnityFlowVisualizer {
 
 
                 Corner newCorner = go.AddComponent<Corner>();
-                newCorner.ParentID = Target.GetInstanceID();
                 GameObject line = new GameObject();
                 line.transform.parent = go.transform;
                 line.transform.position = go.transform.position;
@@ -324,6 +430,12 @@ namespace UnityFlowVisualizer {
                 return;
             }
 
+            if(Target.ConType == CON_TYPE.PRESET || Target.CornerList.Count == 2) {
+                Target.Preset2Handler = ( Target.StartPos.position + Target.EndPos.position ) / 2;
+            } else if (Target.ConType == CON_TYPE.PRESET || Target.CornerList.Count == 3) {
+                Target.Preset3Handler = Target.CornerList[1].transform.position;
+            }
+
             int count = Target.CornerList.Count;
             Vector3 Amount = ( Target.EndPos.position - Target.CornerList[count-1].transform.position ) / 2;
 
@@ -333,7 +445,6 @@ namespace UnityFlowVisualizer {
             go.name = Target.name + " Corner_" + count;
 
             Corner newCorner = go.AddComponent<Corner>();
-            newCorner.ParentID = Target.GetInstanceID();
             GameObject line = new GameObject();
             line.transform.parent = go.transform;
             line.transform.position = go.transform.position;
@@ -362,7 +473,8 @@ namespace UnityFlowVisualizer {
             Target.CornerList[count].Destination = Target.EndPos;
             Target.CornerList[count-1].Destination = Target.CornerList[count].transform;
 
-            Repaint();
+            UnityEditor.EditorApplication.QueuePlayerLoopUpdate();
+            UnityEditor.SceneView.RepaintAll();
         }
 
         public void DeleteCorner(int index) {
