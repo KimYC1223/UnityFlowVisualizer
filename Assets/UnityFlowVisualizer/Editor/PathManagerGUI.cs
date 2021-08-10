@@ -54,46 +54,54 @@ namespace UnityFlowVisualizer {
             if (Env != null) 
                  scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, false, GUILayout.Width(300), GUILayout.Height(190));
             else scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, false, GUILayout.Width(300), GUILayout.Height(150));
-
-            // Scroll View Area
-            if(Env == null) {
-                Rect rect1 = new Rect (0,0,300,150);
-                GUIStyle centerStyle = new GUIStyle("Label");
-                centerStyle.alignment = TextAnchor.MiddleCenter;
-                centerStyle.fixedHeight = 140;
-                GUILayout.BeginArea(rect1);
-                GUILayout.Label("Path Manager not found", centerStyle);
-                GUILayout.EndArea();
-            } else {
-                try {
-                    Rect rect0 = EditorGUILayout.GetControlRect(false, 21 * Env.PathInfoList.Count);
-                    Rect rect1 = new Rect(rect0.x, rect0.y, 300, 21 * Env.PathInfoList.Count);
-                    GUILayout.BeginArea(rect1);
-
-                    for(int i = 0; i < Env.PathInfoList.Count; i++) {
-
-                        Color targetColor = Env.PathInfoList[i].PathColor;
-                        string targetName = Env.PathInfoList[i].PathName;
-                        GUILayout.BeginHorizontal(EditorStyles.toolbar);
-                        GUILayout.Label(ColorToStr(targetColor), BackgroundStyle.GetToolbar(targetColor), GUILayout.Width(69f));
-                        Env.PathInfoList[i].PathName = GUILayout.TextField(targetName, EditorStyles.toolbarTextField, GUILayout.Width(165f));
-                        Env.PathInfoList[i].gameObject.name = Env.PathInfoList[i].PathName;
-                        if (Env.PathInfoList.Count >= 9) { if (GUILayout.Button("Edit", EditorStyles.toolbarButton, GUILayout.Width(49f))) EditButtonClick(i); }
-                        else { if (GUILayout.Button("Edit", EditorStyles.toolbarButton, GUILayout.Width(59f))) EditButtonClick(i); }
-                        GUILayout.EndHorizontal();
-                    }
-                    GUILayout.EndArea();
-                } catch(System.Exception e) {
-                    Rect rect1 = new Rect(0, 0, 300, 150);
+            
+            try {
+                // Scroll View Area
+                if(Env == null) {
+                    Rect rect1 = new Rect (0,0,300,150);
                     GUIStyle centerStyle = new GUIStyle("Label");
                     centerStyle.alignment = TextAnchor.MiddleCenter;
                     centerStyle.fixedHeight = 140;
                     GUILayout.BeginArea(rect1);
                     GUILayout.Label("Path Manager not found", centerStyle);
                     GUILayout.EndArea();
-                    e.ToString();
+                } else {
+                    try {
+                        Rect rect0 = EditorGUILayout.GetControlRect(false, 21 * Env.PathInfoList.Count);
+                        Rect rect1 = new Rect(rect0.x, rect0.y, 300, 21 * Env.PathInfoList.Count);
+                        GUILayout.BeginArea(rect1);
+
+                        for(int i = 0; i < Env.PathInfoList.Count; i++) {
+
+                            Color targetColor = Env.PathInfoList[i].PathColor;
+                            string targetName = Env.PathInfoList[i].PathName;
+                            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+                            GUILayout.Label(ColorToStr(targetColor), BackgroundStyle.GetToolbar(targetColor), GUILayout.Width(69f));
+                            Env.PathInfoList[i].PathName = GUILayout.TextField(targetName, EditorStyles.toolbarTextField, GUILayout.Width(165f));
+                            Env.PathInfoList[i].gameObject.name = Env.PathInfoList[i].PathName;
+                            if (Env.PathInfoList.Count >= 9) { if (GUILayout.Button("Edit", EditorStyles.toolbarButton, GUILayout.Width(49f))) EditButtonClick(i); }
+                            else { if (GUILayout.Button("Edit", EditorStyles.toolbarButton, GUILayout.Width(59f))) EditButtonClick(i); }
+                            GUILayout.EndHorizontal();
+                        }
+                        GUILayout.EndArea();
+                    } catch(System.Exception e) {
+                        Rect rect1 = new Rect(0, 0, 300, 150);
+                        GUIStyle centerStyle = new GUIStyle("Label");
+                        centerStyle.alignment = TextAnchor.MiddleCenter;
+                        centerStyle.fixedHeight = 140;
+                        GUILayout.BeginArea(rect1);
+                        GUILayout.Label("Path Manager not found", centerStyle);
+                        GUILayout.EndArea();
+                        e.ToString();
+                    }
                 }
+            }catch (System.Exception e) {
+                e.ToString();
+                Rect rect1 = new Rect(0, 0, 300, 150);
+                GUILayout.BeginArea(rect1);
+                GUILayout.EndArea();
             }
+
             GUILayout.EndScrollView();
 
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
@@ -105,6 +113,9 @@ namespace UnityFlowVisualizer {
             GUI.enabled = true;
             GuiLine();
             GUILayout.Label(EndTex);
+            if (GUI.changed) {
+                UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
+            }
         }
 
 
@@ -144,11 +155,14 @@ namespace UnityFlowVisualizer {
             newInfo.PathColor = new Color(UnityEngine.Random.Range(0f, 1f),
                                           UnityEngine.Random.Range(0f, 1f),
                                           UnityEngine.Random.Range(0f, 1f), 0.5f);
+            Material PathMatOrigin = (Material)Resources.Load("UnityFlowVisualizer/Materials/PathMat", typeof(Material));
+            newInfo.PathMat = new Material(PathMatOrigin);
             newInfo.PathName = "New path group name";
             newInfo.NodeList = new List<Node>();
             newInfo.ConnectionList = new List<Connection>();
 
             Env.PathInfoList.Add(newInfo);
+            UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
         }
 
         public static string ColorToStr(Color color) {

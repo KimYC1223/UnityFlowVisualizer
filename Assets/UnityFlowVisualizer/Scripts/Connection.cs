@@ -73,8 +73,8 @@ namespace UnityFlowVisualizer {
             //this.transform.localScale = new Vector3(1f, 1f, 1f);
             //this.transform.position = new Vector3(0f, 0f, 0f);
             //this.transform.rotation = new Quaternion(0f, 0f, 0f, 0f);
-            MeshRenderer renderer = GetComponent<MeshRenderer>();
-            renderer.sharedMaterial.color = ParentPathInfo.PathColor;
+            //MeshRenderer renderer = GetComponent<MeshRenderer>();
+            //renderer.sharedMaterial.color = ParentPathInfo.PathColor;
 
             if (CornerList.Count == 0) {
                 float distance = Vector3.Distance(StartPos.position, EndPos.position);

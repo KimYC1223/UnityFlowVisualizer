@@ -14,25 +14,40 @@ namespace UnityFlowVisualizer {
             try {
                 if (component.ConType == CON_TYPE.PLAIN) {
                     for (int i = 0; i < component.CornerList.Count; i++) {
-                        component.CornerList[i].transform.position =
+                        Vector3 temp =
                         PositionHandlePlane(component.CornerList[i].transform, component.StartPos.position, component.EndPos.position);
+                        if(temp != component.CornerList[i].transform.position) {
+                            Undo.RecordObject(component.CornerList[i].transform, "Change connection");
+                            component.CornerList[i].transform.position = temp;
+                            UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
+                        }
                     }
                 } else if (component.ConType == CON_TYPE.FREE) {
                     for (int i = 0; i < component.CornerList.Count; i++) {
-                        component.CornerList[i].transform.position = PositionHandle(component.CornerList[i].transform);
+                        Vector3 temp = PositionHandle(component.CornerList[i].transform);
+                        if (temp != component.CornerList[i].transform.position) {
+                            Undo.RecordObject(component.CornerList[i].transform, "Change connection");
+                            component.CornerList[i].transform.position = temp;
+                            UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
+                        }
                     }
                 } else if (component.ConType == CON_TYPE.PRESET&& component.CornerList.Count == 2) {
                     component.Preset2Handler = ( component.CornerList[0].transform.position + component.CornerList[1].transform.position )/2;
                     Vector3 temp = PositionHandleAxis(component.Preset2Handler, component.PresetType2);
                     if (component.Preset2Handler != temp) {
+                        Undo.RecordObjects(new Object[] { component.CornerList[0].transform ,
+                                                          component.CornerList[1].transform }, "Change connection");
                         component.Preset2Handler = temp;
+                        UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
                         UnityEditor.EditorApplication.QueuePlayerLoopUpdate();
                         UnityEditor.SceneView.RepaintAll();
                     }
                 } else if (component.ConType == CON_TYPE.PRESET && component.CornerList.Count == 3) {
                     Vector3 temp = PositionHandle_XYZPlane(component.CornerList[1].transform.position, component.PresetType3);
                     if (component.Preset3Handler != temp) {
+                        Undo.RecordObject(component.CornerList[1].transform, "Change connection");
                         component.Preset3Handler = temp;
+                        UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
                         UnityEditor.EditorApplication.QueuePlayerLoopUpdate();
                         UnityEditor.SceneView.RepaintAll();
                     }
@@ -46,6 +61,10 @@ namespace UnityFlowVisualizer {
                         component.CornerList.Add(childs[i]);
                 component.CornerCount = component.CornerList.Count;
                 Repaint();
+            }
+
+            if (GUI.changed) {
+                UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
             }
         }
 

@@ -20,10 +20,21 @@ namespace UnityFlowVisualizer {
         public GameObject PathParent;
         public GameObject CornerParent;
 
+        public Material PathMat;
+
         Coroutine myRoutine = null;
 
         public void OnEnable() {
-            if(myRoutine != null) {
+            Material PathMatOrigin = (Material)Resources.Load("UnityFlowVisualizer/Materials/PathMat", typeof(Material));
+            PathMat = new Material(PathMatOrigin);
+            PathMat.color = PathColor;
+
+            MeshRenderer[] renderers = this.transform.GetComponentsInChildren<MeshRenderer>();
+
+            foreach (MeshRenderer renderer in renderers)
+                renderer.sharedMaterial = PathMat;
+
+            if (myRoutine != null) {
                 StopCoroutine(myRoutine);
                 myRoutine = null;
             }

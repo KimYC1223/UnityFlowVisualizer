@@ -98,8 +98,20 @@ namespace UnityFlowVisualizer {
             GUILayout.Space(10);
 
             GUILayout.Label("Path color", GUILayout.Width(60f));
-            if (Target != null) Target.PathColor = EditorGUILayout.ColorField(Target.PathColor, GUILayout.Width(80f));
+            Color NewColor = Color.white;
+            if (Target != null) NewColor = EditorGUILayout.ColorField(Target.PathColor, GUILayout.Width(80f));
             else EditorGUILayout.ColorField(Color.white, GUILayout.Width(80f));
+
+            if(Target != null && NewColor != Target.PathColor) {
+                MeshRenderer[] renderers = Target.transform.GetComponentsInChildren<MeshRenderer>();
+                foreach (MeshRenderer renderer in renderers) {
+                    renderer.sharedMaterial.color = NewColor;
+                    break;
+                }
+                Target.PathColor = NewColor;
+            }
+
+
             GUILayout.Space(10);
 
             GUILayout.Label("Path thickness ", GUILayout.Width(90f));
@@ -176,7 +188,7 @@ namespace UnityFlowVisualizer {
             GUILayout.Label("Connection list", EditorStyles.boldLabel);
 
             GUI.enabled = !( Target == null || Target.NodeList.Count < 2);
-            if (GUILayout.Button("New Connection button", GUILayout.Width(150f))) NewConnectionButton();
+            if (GUILayout.Button("New Connection", GUILayout.Width(150f))) NewConnectionButton();
             GUI.enabled = Target != null;
             GUILayout.EndHorizontal();
 
@@ -323,6 +335,9 @@ namespace UnityFlowVisualizer {
             GuiLine();
             GUI.enabled = true;
             GUILayout.Label(EndTex);
+            if (GUI.changed) {
+                UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
+            }
         }
 
         public void PathGeneratorButtonClick() {
@@ -343,6 +358,7 @@ namespace UnityFlowVisualizer {
             newNode.Pos = newGo.transform.position;
             newNode.ID = newNode.GetInstanceID();
             Target.NodeList.Add(newNode);
+            UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
         }
 
         public void NewConnectionButton() {
@@ -356,7 +372,8 @@ namespace UnityFlowVisualizer {
             MeshFilter mesh = newGo.AddComponent<MeshFilter>();
             mesh.mesh = (Mesh)Resources.Load("UnityFlowVisualizer/Meshes/Cylinder", typeof(Mesh));
             MeshRenderer renderer = newGo.AddComponent<MeshRenderer>();
-            renderer.material = (Material)Resources.Load("UnityFlowVisualizer/Materials/PathMat", typeof(Material));
+            renderer.material = renderer.material = Target.PathMat;
+            renderer.sharedMaterial.color = Target.PathColor;
 
             Connection newCon = newGo.AddComponent<Connection>();
             newCon.Name = "New Connection";
@@ -372,6 +389,7 @@ namespace UnityFlowVisualizer {
             newCon.ParentPathInfo = Target;
             newCon.ID = newCon.GetInstanceID();
             Target.ConnectionList.Add(newCon);
+            UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
         }
 
         public void NewPathButton() {
@@ -385,30 +403,58 @@ namespace UnityFlowVisualizer {
             newPath.Name = "New Path";
             newPath.Connections = new List<Connection>();
             newPath.Connections.Add(Target.ConnectionList[0]);
+            newPath.ParentPathInfo = Target;
             newPath.Start = Target.ConnectionList[0].Start;
             newPath.End = Target.ConnectionList[0].End;
             newPath.StartID = Target.ConnectionList[0].StartID;
             newPath.EndID = Target.ConnectionList[0].EndID;
             newPath.ID = newPath.GetInstanceID();
             Target.PathList.Add(newPath);
+            UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
         }
 
         public void DeleteNodeButton(int index) {
-            GameObject DelOb = Target.NodeList[index].gameObject;
+            Node targetNode = Target.NodeList[index];
+
+            List<int> deleteIndex = new List<int>();
+            for (int i = 0; i < Target.ConnectionList.Count; i++) {
+                if (Target.ConnectionList[i].StartID == targetNode.ID ||
+                   Target.ConnectionList[i].EndID == targetNode.ID)
+                    deleteIndex.Add(i);
+            }
+            foreach (int i in deleteIndex)
+                DeleteConnectionButton(i);
+
+            GameObject DelOb = targetNode.gameObject;
             Target.NodeList.RemoveAt(index);
             DestroyImmediate(DelOb);
+            UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
         }
 
         public void DeleteConnectionButton(int index) {
-            GameObject DelOb = Target.ConnectionList[index].gameObject;
+            Connection targetCon = Target.ConnectionList[index];
+
+            List<int> deleteIndex = new List<int>();
+            for (int i = 0; i < Target.PathList.Count; i++) {
+                for (int j = 0; j < Target.PathList[i].Connections.Count; j++) {
+                    if (Target.PathList[i].Connections[j].ID == targetCon.ID)
+                        deleteIndex.Add(i);
+                }
+            }
+            foreach (int i in deleteIndex)
+                DeletePathButton(i);
+
+            GameObject DelOb = targetCon.gameObject;
             Target.ConnectionList.RemoveAt(index);
             DestroyImmediate(DelOb);
+            UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
         }
 
         public void DeletePathButton(int index) {
             GameObject DelOb = Target.PathList[index].gameObject;
             Target.PathList.RemoveAt(index);
             DestroyImmediate(DelOb);
+            UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
         }
 
         public void EditConnectionButton(int index) {
@@ -420,7 +466,11 @@ namespace UnityFlowVisualizer {
         }
 
         public void EditPathButton(int index) {
-
+            //Selection.objects = new UnityEngine.Object[] { Target.PathList[index].gameObject };
+            PathEditorGUI.TargetPathInfo = Target;
+            PathEditorGUI.Target = Target.PathList[index];
+            PathEditorGUI.ShowWindow();
+            this.Close();
         }
 
         void GuiLine(int i_height = 1) {

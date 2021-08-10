@@ -12,6 +12,16 @@ namespace UnityFlowVisualizer {
         public PathInfo pathInfo;
         public Connection Connection;
 
+        [CustomEditor(typeof(Corner))]
+        public class ConerGUI : Editor {
+            public void OnSceneGUI() {
+                Corner component = target as Corner;
+                if (component.Connection != null) {
+                    Selection.objects = new UnityEngine.Object[] { component.Connection.gameObject };
+                }
+            }
+        }
+
         public void Update() {
             if (Connection.CornerList.Count == 1 && Connection.ConType == CON_TYPE.PRESET && Connection.PresetType1 == PRESET_TYPE_1_CORNER.END) {
                 this.transform.position = new Vector3(Destination.position.x, Connection.StartPos.position.y, Destination.position.z);

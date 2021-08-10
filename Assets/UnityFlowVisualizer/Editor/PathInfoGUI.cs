@@ -15,6 +15,10 @@ namespace UnityFlowVisualizer {
                 component.NodeList[i].Pos = PositionHandle(component.NodeList[i].transform);
                 component.NodeList[i].transform.position = component.NodeList[i].Pos;
             }
+
+            if (GUI.changed) {
+                UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
+            }
         }
 
         public void OnEnable() {

@@ -5,6 +5,7 @@ using UnityEngine;
 namespace UnityFlowVisualizer {
     public class Path : MonoBehaviour
     {
+        public PathInfo ParentPathInfo;
         public int Index;
         public int ID;
         public string Name;

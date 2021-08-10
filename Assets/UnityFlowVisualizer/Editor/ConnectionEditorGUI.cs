@@ -1,17 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace UnityFlowVisualizer {
     public class ConnectionEditorGUI : EditorWindow {
+        [HideInInspector]
         Vector2 scrollPosition;
+        [HideInInspector]
         Vector2 scrollPosition2;
+        [HideInInspector]
         public static Connection Target;
+        [HideInInspector]
         public static PathInfo TargetPathInfo;
+        [HideInInspector]
         private GameObject lastSelect = null;
+        [HideInInspector]
         Texture LogoTex;
+        [HideInInspector]
         Texture EndTex;
+        [HideInInspector]
         private int TargetID = 0;
 
         public static void ShowWindow() {
@@ -96,9 +105,12 @@ namespace UnityFlowVisualizer {
                         else if (optionsID[i] == Target.EndID) EndIndex = i;
                     }
 
+                    bool isPathChangeFlag = false;
+
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Start Node ",GUILayout.Width(70f));
                     int NewStartIndex = EditorGUILayout.Popup(StartIndex,options,GUILayout.Width(215f));
+                    if (!isPathChangeFlag) isPathChangeFlag = NewStartIndex != StartIndex;
                     Target.Start = TargetPathInfo.NodeList[NewStartIndex].Name;
                     Target.StartID = TargetPathInfo.NodeList[NewStartIndex].ID;
                     Target.StartPos = TargetPathInfo.NodeList[NewStartIndex].transform;
@@ -107,6 +119,7 @@ namespace UnityFlowVisualizer {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("End Node ",GUILayout.Width(70f));
                     int NewEndIndex = EditorGUILayout.Popup(EndIndex,options,GUILayout.Width(215f));
+                    if (!isPathChangeFlag) isPathChangeFlag = NewEndIndex != EndIndex;
                     Target.End = TargetPathInfo.NodeList[NewEndIndex].Name;
                     Target.EndID = TargetPathInfo.NodeList[NewEndIndex].ID;
                     Target.EndPos = TargetPathInfo.NodeList[NewEndIndex].transform;
@@ -115,8 +128,9 @@ namespace UnityFlowVisualizer {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Corner count", GUILayout.Width(110f));
                     int NewType = EditorGUILayout.IntField(Target.CornerCount, GUILayout.Width(175f));
-
-                    if(NewType != Target.CornerCount) {
+                    bool con_type_change = false;
+                    if (NewType != Target.CornerCount) {
+                        con_type_change = true;
                         CreateCorner(NewType);
                     }
                     Target.CornerCount = NewType;
@@ -125,6 +139,8 @@ namespace UnityFlowVisualizer {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Connection type", GUILayout.Width(110f));
                     int NewConType = EditorGUILayout.Popup((int)Target.ConType,con_type,GUILayout.Width(175f));
+                    con_type_change = ( con_type_change) ? true : (CON_TYPE)NewConType != Target.ConType;
+
                     if( ( NewConType == (int)CON_TYPE.PLAIN  && Target.ConType == CON_TYPE.PRESET ) ||
                         ( NewConType == (int)CON_TYPE.FREE   && Target.ConType == CON_TYPE.PRESET ) ||
                         ( NewConType == (int)CON_TYPE.PRESET && Target.ConType == CON_TYPE.PLAIN  ) ||
@@ -133,6 +149,13 @@ namespace UnityFlowVisualizer {
                     } else if(NewConType == 0 && Target.CornerCount > 3) {
                         Target.CornerCount = 3;
                         CreateCorner(Target.CornerCount);
+                    }
+                    
+                    if(isPathChangeFlag) {
+                        ClearCorner();
+                        CreateCorner(Target.CornerCount);
+                        UnityEditor.EditorApplication.QueuePlayerLoopUpdate();
+                        UnityEditor.SceneView.RepaintAll();
                     }
                     Target.ConType = (CON_TYPE)NewConType;
                     GUILayout.EndHorizontal();
@@ -186,6 +209,8 @@ namespace UnityFlowVisualizer {
                         Rect rect1 = new Rect(rect0.x, rect0.y, 300, 21 * Target.CornerList.Count);
                         GUILayout.BeginArea(rect1);
 
+
+
                         if (Target.CornerList.Count == 1) {
                             GUILayout.BeginHorizontal(EditorStyles.toolbar);
                             GUILayout.Label(0.ToString(),centerStyle2, GUILayout.Width(43f));
@@ -193,8 +218,10 @@ namespace UnityFlowVisualizer {
                             string[] con_type_1 = new string[] { "START", "END" };
                             int presetType1 = EditorGUILayout.Popup((int)Target.PresetType1, con_type_1, GUILayout.Width(176f));
 
-                            if(presetType1 != (int)Target.PresetType1) {
-                                if(presetType1 == (int)PRESET_TYPE_1_CORNER.START) {
+                            if(con_type_change || presetType1 != (int)Target.PresetType1) {
+                                Undo.RecordObject(this, "Change connection");
+                                con_type_change = false;
+                                if (presetType1 == (int)PRESET_TYPE_1_CORNER.START) {
                                     Target.CornerList[0].transform.position = new Vector3(Target.EndPos.position.x,
                                                                                           Target.StartPos.position.y,
                                                                                           Target.EndPos.position.z);
@@ -220,7 +247,9 @@ namespace UnityFlowVisualizer {
                             string[] con_type2 = new string[] { "X-Axis parallel", "Y-Axis parallel", "Z-Axis parallel" };
                             int presetType2 = EditorGUILayout.Popup((int)Target.PresetType2, con_type2, GUILayout.Width(176f));
 
-                            if (presetType2 != (int)Target.PresetType2) {
+                            if (con_type_change || presetType2 != (int)Target.PresetType2) {
+                                Undo.RecordObject(this, "Change connection");
+                                con_type_change = false;
                                 Vector3 centerPos = ( Target.StartPos.position + Target.EndPos.position ) / 2;
                                 if (presetType2 == (int)PRESET_TYPE_2_CORNER.X) {
                                     Target.CornerList[0].transform.position = new Vector3(Target.StartPos.position.x,
@@ -259,7 +288,9 @@ namespace UnityFlowVisualizer {
                                                                 "XZ-Plane parallel 1", "XZ-Plane parallel 2" };
                             int presetType3 = EditorGUILayout.Popup((int)Target.PresetType3, con_type3, GUILayout.Width(176f));
 
-                            if (presetType3 != (int)Target.PresetType3) {
+                            if (con_type_change || presetType3 != (int)Target.PresetType3) {
+                                Undo.RecordObject(this, "Change connection");
+                                con_type_change = false;
                                 Vector3 centerPos = ( Target.StartPos.position + Target.EndPos.position ) / 2;
                                 if (presetType3 == (int)PRESET_TYPE_3_CORNER.XY1) {
                                     Target.CornerList[0].transform.position = new Vector3(Target.StartPos.position.x,
@@ -349,10 +380,15 @@ namespace UnityFlowVisualizer {
                 }
             }
             GUILayout.EndScrollView();
+            if (Target != null)
+                GUI.enabled = Target.ConType != CON_TYPE.PRESET;
             if (GUILayout.Button("Clear corner list")) { ClearCorner(); Repaint(); }
             GUI.enabled = true;
             GuiLine();
             GUILayout.Label(EndTex);
+            if (GUI.changed) {
+                UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
+            }
         }
 
         public void ClearCorner() {
@@ -362,6 +398,7 @@ namespace UnityFlowVisualizer {
             }
             Target.CornerList = new List<Corner>();
             Target.CornerCount = 0;
+            UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
         }
 
         public void CreateCorner(int NewType) {
@@ -381,6 +418,7 @@ namespace UnityFlowVisualizer {
             Target.CornerList = new List<Corner>();
             Vector3 Amount = ( Target.EndPos.position - Target.StartPos.position ) / ( NewType + 1 );
 
+            GameObject[] newGos = new GameObject[NewType];
             for (int k = 1; k <= NewType; k++) {
                 GameObject go = new GameObject();
                 go.transform.parent = TargetPathInfo.CornerParent.transform;
@@ -392,28 +430,31 @@ namespace UnityFlowVisualizer {
                 GameObject line = new GameObject();
                 line.transform.parent = go.transform;
                 line.transform.position = go.transform.position;
+                CornerChild CornerChild = line.AddComponent<CornerChild>();
+                CornerChild.con = Target;
                 newCorner.Line = line.transform;
                 newCorner.pathInfo = TargetPathInfo;
                 newCorner.Connection = Target;
 
                 Mesh Cylinder = (Mesh)Resources.Load("UnityFlowVisualizer/Meshes/Cylinder",typeof(Mesh));
                 Mesh Sphere   = (Mesh)Resources.Load("UnityFlowVisualizer/Meshes/Sphere", typeof(Mesh));
-                Material PathMat = (Material)Resources.Load("UnityFlowVisualizer/Materials/PathMat",typeof(Material));
 
                 MeshFilter mesh = go.AddComponent<MeshFilter>();
                 mesh.mesh = Sphere;
                 MeshRenderer renderer = go.AddComponent<MeshRenderer>();
-                renderer.sharedMaterial = PathMat;
-                renderer.sharedMaterial.color = TargetPathInfo.PathColor;
+                renderer.material = Target.ParentPathInfo.PathMat;
+                renderer.sharedMaterial.color = Target.ParentPathInfo.PathColor;
 
                 mesh = line.AddComponent<MeshFilter>();
                 mesh.mesh = Cylinder;
                 renderer = line.AddComponent<MeshRenderer>();
-                renderer.sharedMaterial = PathMat;
-                renderer.sharedMaterial.color = TargetPathInfo.PathColor;
+                renderer.material = Target.ParentPathInfo.PathMat;
+                renderer.sharedMaterial.color = Target.ParentPathInfo.PathColor;
 
                 Target.CornerList.Add(newCorner);
             }
+
+            
 
             for(int i = 0; i < Target.CornerList.Count; i++) {
                 if (i == Target.CornerList.Count - 1)
@@ -422,6 +463,7 @@ namespace UnityFlowVisualizer {
             }
 
             Repaint();
+            UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
         }
 
         public void CreateCornerContinue(int NewType) {
@@ -446,6 +488,8 @@ namespace UnityFlowVisualizer {
 
             Corner newCorner = go.AddComponent<Corner>();
             GameObject line = new GameObject();
+            CornerChild CornerChild = line.AddComponent<CornerChild>();
+            CornerChild.con = Target;
             line.transform.parent = go.transform;
             line.transform.position = go.transform.position;
             newCorner.Line = line.transform;
@@ -454,19 +498,18 @@ namespace UnityFlowVisualizer {
 
             Mesh Cylinder = (Mesh)Resources.Load("UnityFlowVisualizer/Meshes/Cylinder", typeof(Mesh));
             Mesh Sphere = (Mesh)Resources.Load("UnityFlowVisualizer/Meshes/Sphere", typeof(Mesh));
-            Material PathMat = (Material)Resources.Load("UnityFlowVisualizer/Materials/PathMat", typeof(Material));
 
             MeshFilter mesh = go.AddComponent<MeshFilter>();
             mesh.mesh = Sphere;
             MeshRenderer renderer = go.AddComponent<MeshRenderer>();
-            renderer.sharedMaterial = PathMat;
-            renderer.sharedMaterial.color = TargetPathInfo.PathColor;
+            renderer.material = Target.ParentPathInfo.PathMat;
+            renderer.sharedMaterial.color = Target.ParentPathInfo.PathColor;
 
             mesh = line.AddComponent<MeshFilter>();
             mesh.mesh = Cylinder;
             renderer = line.AddComponent<MeshRenderer>();
-            renderer.sharedMaterial = PathMat;
-            renderer.sharedMaterial.color = TargetPathInfo.PathColor;
+            renderer.material = Target.ParentPathInfo.PathMat;
+            renderer.sharedMaterial.color = Target.ParentPathInfo.PathColor;
 
             Target.CornerList.Add(newCorner);
             
@@ -475,6 +518,7 @@ namespace UnityFlowVisualizer {
 
             UnityEditor.EditorApplication.QueuePlayerLoopUpdate();
             UnityEditor.SceneView.RepaintAll();
+            UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
         }
 
         public void DeleteCorner(int index) {
@@ -496,6 +540,7 @@ namespace UnityFlowVisualizer {
                 DestroyImmediate(go);
             }
             Repaint();
+            UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
         }
 
         public void PathGroupEditorButtonClick() {
