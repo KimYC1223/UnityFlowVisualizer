@@ -9,7 +9,7 @@ namespace UnityFlowVisualizer {
     {
         public Transform Destination;
         public Transform Line;
-        public PathInfo pathInfo;
+        public PathGroup pathGroup;
         public Connection Connection;
 
         [CustomEditor(typeof(Corner))]
@@ -70,10 +70,10 @@ namespace UnityFlowVisualizer {
 
         public void LateUpdate() {
 
-            if (pathInfo != null) {
+            if (pathGroup != null) {
                 this.transform.LookAt(Destination);
-                this.transform.localScale = new Vector3(pathInfo.Thickness, pathInfo.Thickness, pathInfo.Thickness);
-                float distance = Vector3.Distance(this.transform.position, Destination.position) / pathInfo.Thickness;
+                this.transform.localScale = new Vector3(pathGroup.Thickness, pathGroup.Thickness, pathGroup.Thickness);
+                float distance = Vector3.Distance(this.transform.position, Destination.position) / pathGroup.Thickness;
                 Line.localScale = new Vector3(1f, 1f, distance);
             }
         }

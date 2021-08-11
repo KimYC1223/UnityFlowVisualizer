@@ -6,7 +6,7 @@ using UnityEditor;
 namespace UnityFlowVisualizer {
     [InitializeOnLoad]
     public class PathGroupEditorGUI : EditorWindow {
-        public static PathInfo Target;
+        public static PathGroup Target;
         private GameObject lastSelect = null;
 
         Vector2 scrollPosition1;
@@ -38,8 +38,8 @@ namespace UnityFlowVisualizer {
             }
             
             if(Target == null) {
-                try { 
-                    PathInfo info = Selection.activeGameObject.GetComponent<PathInfo>();
+                try {
+                    PathGroup info = Selection.activeGameObject.GetComponent<PathGroup>();
                     if (info != null) Target = info;
                     else Target = null;
                 } catch(System.Exception e) { e.ToString(); }
@@ -85,7 +85,7 @@ namespace UnityFlowVisualizer {
             GUILayout.Space(30);
             GUILayout.Label("Path Group", GUILayout.Width(70f));
 
-            if (Target = EditorGUILayout.ObjectField("", Target, typeof(PathInfo), true, GUILayout.Width(165f)) as PathInfo) {
+            if (Target = EditorGUILayout.ObjectField("", Target, typeof(PathGroup), true, GUILayout.Width(165f)) as PathGroup) {
                 if (TargetID != Target.GetInstanceID()) {
                     TargetID = Target.GetInstanceID();
                     Selection.objects = new UnityEngine.Object[] { Target.gameObject };
@@ -153,7 +153,7 @@ namespace UnityFlowVisualizer {
             if (Target == null || Target.NodeList.Count == 0) {
                 Rect rect1 = new Rect(0, 0, 900, 150);
                 GUILayout.BeginArea(rect1);
-                if(Target == null)GUILayout.Label("Path info component not found", centerStyle);
+                if(Target == null)GUILayout.Label("Path group component not found", centerStyle);
                 else GUILayout.Label("Node not found", centerStyle);
                 GUILayout.EndArea();
             } else {
@@ -206,7 +206,7 @@ namespace UnityFlowVisualizer {
             if (Target == null || Target.NodeList.Count <  2 || Target.ConnectionList.Count <= 0) {
                 Rect rect1 = new Rect(0, 0, 440, 150);
                 GUILayout.BeginArea(rect1);
-                if (Target == null) GUILayout.Label("Path info component not found", centerStyle);
+                if (Target == null) GUILayout.Label("Path group component not found", centerStyle);
                 else if (Target.NodeList.Count < 2) GUILayout.Label("The number of nodes must be at least two", centerStyle);
                 else GUILayout.Label("Connection not found", centerStyle);
                 GUILayout.EndArea();
@@ -286,7 +286,7 @@ namespace UnityFlowVisualizer {
             if (Target == null || Target.ConnectionList.Count < 1 || Target.PathList.Count <= 0) {
                 Rect rect1 = new Rect(0, 0, 440, 150);
                 GUILayout.BeginArea(rect1);
-                if (Target == null) GUILayout.Label("Path info component not found", centerStyle);
+                if (Target == null) GUILayout.Label("Path group component not found", centerStyle);
                 else if (Target.ConnectionList.Count < 1) GUILayout.Label("The number of connection must be at least one", centerStyle);
                 else GUILayout.Label("Path not found", centerStyle);
                 GUILayout.EndArea();
@@ -341,7 +341,7 @@ namespace UnityFlowVisualizer {
         }
 
         public void PathGeneratorButtonClick() {
-            PathManagerGUI.ShowWindow();
+            PathManagerEditorGUI.ShowWindow();
             this.Close();
         }
 
@@ -357,6 +357,7 @@ namespace UnityFlowVisualizer {
             newNode.PinnedObject = null;
             newNode.Pos = newGo.transform.position;
             newNode.ID = newNode.GetInstanceID();
+            newNode.group = Target;
             Target.NodeList.Add(newNode);
             UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
         }
@@ -386,7 +387,7 @@ namespace UnityFlowVisualizer {
             newCon.CornerList = new List<Corner>();
             newCon.CornerCount = 0;
             newCon.ConType = CON_TYPE.PRESET;
-            newCon.ParentPathInfo = Target;
+            newCon.ParentPathGroup = Target;
             newCon.ID = newCon.GetInstanceID();
             Target.ConnectionList.Add(newCon);
             UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
@@ -403,7 +404,7 @@ namespace UnityFlowVisualizer {
             newPath.Name = "New Path";
             newPath.Connections = new List<Connection>();
             newPath.Connections.Add(Target.ConnectionList[0]);
-            newPath.ParentPathInfo = Target;
+            newPath.ParentPathGroup = Target;
             newPath.Start = Target.ConnectionList[0].Start;
             newPath.End = Target.ConnectionList[0].End;
             newPath.StartID = Target.ConnectionList[0].StartID;
@@ -459,7 +460,7 @@ namespace UnityFlowVisualizer {
 
         public void EditConnectionButton(int index) {
             Selection.objects = new UnityEngine.Object[] { Target.ConnectionList[index].gameObject };
-            ConnectionEditorGUI.TargetPathInfo = Target;
+            ConnectionEditorGUI.TargetPathGroup = Target;
             ConnectionEditorGUI.Target = Target.ConnectionList[index];
             ConnectionEditorGUI.ShowWindow();
             this.Close();
@@ -467,7 +468,7 @@ namespace UnityFlowVisualizer {
 
         public void EditPathButton(int index) {
             //Selection.objects = new UnityEngine.Object[] { Target.PathList[index].gameObject };
-            PathEditorGUI.TargetPathInfo = Target;
+            PathEditorGUI.TargetPathGroup = Target;
             PathEditorGUI.Target = Target.PathList[index];
             PathEditorGUI.ShowWindow();
             this.Close();
@@ -485,13 +486,13 @@ namespace UnityFlowVisualizer {
                 bool flag = false;
                 foreach(Object ob in Selection.objects) {
                     GameObject go = ob as GameObject;
-                    PathInfo temp = go.GetComponent<PathInfo>();
+                    PathGroup temp = go.GetComponent<PathGroup>();
                     if(temp != null) { lastSelect = go; flag = true;  break; }
                 }
 
                 if(!flag && Selection.objects.Length > 0) lastSelect = null;
 
-                PathInfo info = Selection.activeGameObject.GetComponent<PathInfo>();
+                PathGroup info = Selection.activeGameObject.GetComponent<PathGroup>();
                 if (info != null) {
                     Target = info;
                 } else { Target = null; TargetID = 0; }

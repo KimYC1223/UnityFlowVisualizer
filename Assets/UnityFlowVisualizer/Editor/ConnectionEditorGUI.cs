@@ -13,7 +13,7 @@ namespace UnityFlowVisualizer {
         [HideInInspector]
         public static Connection Target;
         [HideInInspector]
-        public static PathInfo TargetPathInfo;
+        public static PathGroup TargetPathGroup;
         [HideInInspector]
         private GameObject lastSelect = null;
         [HideInInspector]
@@ -46,7 +46,7 @@ namespace UnityFlowVisualizer {
                 } catch (System.Exception e) { e.ToString(); }
             } else {
                 try {
-                    TargetPathInfo = Target.transform.parent.parent.gameObject.GetComponent<PathInfo>();
+                    TargetPathGroup = Target.transform.parent.parent.gameObject.GetComponent<PathGroup>();
                 } catch (System.Exception e) { e.ToString(); }
             }
 
@@ -91,16 +91,16 @@ namespace UnityFlowVisualizer {
                 GUILayout.EndArea();
             } else {
                 try {
-                    string[] options = new string[TargetPathInfo.NodeList.Count];
-                    int[] optionsID = new int[TargetPathInfo.NodeList.Count];
+                    string[] options = new string[TargetPathGroup.NodeList.Count];
+                    int[] optionsID = new int[TargetPathGroup.NodeList.Count];
 
-                    for(int i = 0; i < TargetPathInfo.NodeList.Count; i ++) {
-                        options[i] = "[" + i + "] " + TargetPathInfo.NodeList[i].Name;
-                        optionsID[i] = TargetPathInfo.NodeList[i].ID;
+                    for(int i = 0; i < TargetPathGroup.NodeList.Count; i ++) {
+                        options[i] = "[" + i + "] " + TargetPathGroup.NodeList[i].Name;
+                        optionsID[i] = TargetPathGroup.NodeList[i].ID;
                     }
                 
                     int StartIndex = 0, EndIndex = 0;
-                    for(int i = 0; i < TargetPathInfo.NodeList.Count; i++) {
+                    for(int i = 0; i < TargetPathGroup.NodeList.Count; i++) {
                         if (optionsID[i] == Target.StartID) StartIndex = i;
                         else if (optionsID[i] == Target.EndID) EndIndex = i;
                     }
@@ -111,18 +111,18 @@ namespace UnityFlowVisualizer {
                     GUILayout.Label("Start Node ",GUILayout.Width(70f));
                     int NewStartIndex = EditorGUILayout.Popup(StartIndex,options,GUILayout.Width(215f));
                     if (!isPathChangeFlag) isPathChangeFlag = NewStartIndex != StartIndex;
-                    Target.Start = TargetPathInfo.NodeList[NewStartIndex].Name;
-                    Target.StartID = TargetPathInfo.NodeList[NewStartIndex].ID;
-                    Target.StartPos = TargetPathInfo.NodeList[NewStartIndex].transform;
+                    Target.Start = TargetPathGroup.NodeList[NewStartIndex].Name;
+                    Target.StartID = TargetPathGroup.NodeList[NewStartIndex].ID;
+                    Target.StartPos = TargetPathGroup.NodeList[NewStartIndex].transform;
                     GUILayout.EndHorizontal();
 
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("End Node ",GUILayout.Width(70f));
                     int NewEndIndex = EditorGUILayout.Popup(EndIndex,options,GUILayout.Width(215f));
                     if (!isPathChangeFlag) isPathChangeFlag = NewEndIndex != EndIndex;
-                    Target.End = TargetPathInfo.NodeList[NewEndIndex].Name;
-                    Target.EndID = TargetPathInfo.NodeList[NewEndIndex].ID;
-                    Target.EndPos = TargetPathInfo.NodeList[NewEndIndex].transform;
+                    Target.End = TargetPathGroup.NodeList[NewEndIndex].Name;
+                    Target.EndID = TargetPathGroup.NodeList[NewEndIndex].ID;
+                    Target.EndPos = TargetPathGroup.NodeList[NewEndIndex].transform;
                     GUILayout.EndHorizontal();
 
                     GUILayout.BeginHorizontal();
@@ -421,7 +421,7 @@ namespace UnityFlowVisualizer {
             GameObject[] newGos = new GameObject[NewType];
             for (int k = 1; k <= NewType; k++) {
                 GameObject go = new GameObject();
-                go.transform.parent = TargetPathInfo.CornerParent.transform;
+                go.transform.parent = TargetPathGroup.CornerParent.transform;
                 go.transform.position = Target.StartPos.position + k * ( Amount );
                 go.name = Target.name + " Corner_" + k;
 
@@ -433,7 +433,7 @@ namespace UnityFlowVisualizer {
                 CornerChild CornerChild = line.AddComponent<CornerChild>();
                 CornerChild.con = Target;
                 newCorner.Line = line.transform;
-                newCorner.pathInfo = TargetPathInfo;
+                newCorner.pathGroup = TargetPathGroup;
                 newCorner.Connection = Target;
 
                 Mesh Cylinder = (Mesh)Resources.Load("UnityFlowVisualizer/Meshes/Cylinder",typeof(Mesh));
@@ -442,14 +442,14 @@ namespace UnityFlowVisualizer {
                 MeshFilter mesh = go.AddComponent<MeshFilter>();
                 mesh.mesh = Sphere;
                 MeshRenderer renderer = go.AddComponent<MeshRenderer>();
-                renderer.material = Target.ParentPathInfo.PathMat;
-                renderer.sharedMaterial.color = Target.ParentPathInfo.PathColor;
+                renderer.material = Target.ParentPathGroup.PathMat;
+                renderer.sharedMaterial.color = Target.ParentPathGroup.PathColor;
 
                 mesh = line.AddComponent<MeshFilter>();
                 mesh.mesh = Cylinder;
                 renderer = line.AddComponent<MeshRenderer>();
-                renderer.material = Target.ParentPathInfo.PathMat;
-                renderer.sharedMaterial.color = Target.ParentPathInfo.PathColor;
+                renderer.material = Target.ParentPathGroup.PathMat;
+                renderer.sharedMaterial.color = Target.ParentPathGroup.PathColor;
 
                 Target.CornerList.Add(newCorner);
             }
@@ -482,7 +482,7 @@ namespace UnityFlowVisualizer {
             Vector3 Amount = ( Target.EndPos.position - Target.CornerList[count-1].transform.position ) / 2;
 
             GameObject go = new GameObject();
-            go.transform.parent = TargetPathInfo.CornerParent.transform;
+            go.transform.parent = TargetPathGroup.CornerParent.transform;
             go.transform.position = Target.CornerList[count - 1].transform.position + Amount;
             go.name = Target.name + " Corner_" + count;
 
@@ -493,7 +493,7 @@ namespace UnityFlowVisualizer {
             line.transform.parent = go.transform;
             line.transform.position = go.transform.position;
             newCorner.Line = line.transform;
-            newCorner.pathInfo = TargetPathInfo;
+            newCorner.pathGroup = TargetPathGroup;
             newCorner.Connection = Target;
 
             Mesh Cylinder = (Mesh)Resources.Load("UnityFlowVisualizer/Meshes/Cylinder", typeof(Mesh));
@@ -502,14 +502,14 @@ namespace UnityFlowVisualizer {
             MeshFilter mesh = go.AddComponent<MeshFilter>();
             mesh.mesh = Sphere;
             MeshRenderer renderer = go.AddComponent<MeshRenderer>();
-            renderer.material = Target.ParentPathInfo.PathMat;
-            renderer.sharedMaterial.color = Target.ParentPathInfo.PathColor;
+            renderer.material = Target.ParentPathGroup.PathMat;
+            renderer.sharedMaterial.color = Target.ParentPathGroup.PathColor;
 
             mesh = line.AddComponent<MeshFilter>();
             mesh.mesh = Cylinder;
             renderer = line.AddComponent<MeshRenderer>();
-            renderer.material = Target.ParentPathInfo.PathMat;
-            renderer.sharedMaterial.color = Target.ParentPathInfo.PathColor;
+            renderer.material = Target.ParentPathGroup.PathMat;
+            renderer.sharedMaterial.color = Target.ParentPathGroup.PathColor;
 
             Target.CornerList.Add(newCorner);
             
@@ -545,8 +545,8 @@ namespace UnityFlowVisualizer {
 
         public void PathGroupEditorButtonClick() {
             if(Target != null) {
-                Selection.objects = new UnityEngine.Object[] { TargetPathInfo.gameObject };
-                PathGroupEditorGUI.Target = TargetPathInfo;
+                Selection.objects = new UnityEngine.Object[] { TargetPathGroup.gameObject };
+                PathGroupEditorGUI.Target = TargetPathGroup;
             } else {
                 PathGroupEditorGUI.Target = null;
             }

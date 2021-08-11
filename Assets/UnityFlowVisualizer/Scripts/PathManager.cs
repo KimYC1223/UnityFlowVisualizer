@@ -9,11 +9,16 @@ namespace UnityFlowVisualizer {
     {
         private Tool LastTool = Tool.None;
         public static PathManager Instance;
-        public List<PathInfo> PathInfoList;
+        public List<PathGroup> PathGroupList;
 
         Coroutine myRoutine = null;
 
+        public void Awake() {
+            Instance = this;
+        }
+
         public void OnEnable() {
+            Instance = this;
             LastTool = Tools.current;
             Tools.current = Tool.None;
 
@@ -21,13 +26,12 @@ namespace UnityFlowVisualizer {
                 StopCoroutine(myRoutine);
                 myRoutine = null;
             }
-            PathInfo[] childs = this.transform.GetComponentsInChildren<PathInfo>();
-            PathInfoList = new List<PathInfo>();
+            PathGroup[] childs = this.transform.GetComponentsInChildren<PathGroup>();
+            PathGroupList = new List<PathGroup>();
             if(childs != null && childs.Length > 0)
                 for (int i = 0; i < childs.Length; i++)
-                    PathInfoList.Add(childs[i]);
+                    PathGroupList.Add(childs[i]);
             this.gameObject.name = "PathManager";
-            Instance = this;
             myRoutine = StartCoroutine(checkList());
         }
 
@@ -45,11 +49,11 @@ namespace UnityFlowVisualizer {
         public IEnumerator checkList() {
             while(true) {
                 yield return new WaitForSeconds(1f);
-                PathInfo[] childs = this.transform.GetComponentsInChildren<PathInfo>();
-                PathInfoList = new List<PathInfo>();
+                PathGroup[] childs = this.transform.GetComponentsInChildren<PathGroup>();
+                PathGroupList = new List<PathGroup>();
                 if (childs != null && childs.Length > 0)
                     for (int i = 0; i < childs.Length; i++)
-                        PathInfoList.Add(childs[i]);
+                        PathGroupList.Add(childs[i]);
             }
         }
     }

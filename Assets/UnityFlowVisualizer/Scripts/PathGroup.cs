@@ -4,22 +4,31 @@ using UnityEngine;
 
 namespace UnityFlowVisualizer {
     [ExecuteInEditMode]
-    public class PathInfo : MonoBehaviour
+    public class PathGroup : MonoBehaviour
     {
         public string PathName = "";
+
         [Range(0,1000)]
-        public float Thickness = 1;
+        public float Thickness = 0.5f;
         public Color PathColor;
 
+        [HideInInspector]
         public List<Node> NodeList;
+        [HideInInspector]
         public List<Connection> ConnectionList;
+        [HideInInspector]
         public List<Path> PathList;
 
+        [HideInInspector]
         public GameObject NodeParent;
+        [HideInInspector]
         public GameObject ConnectionParent;
+        [HideInInspector]
         public GameObject PathParent;
+        [HideInInspector]
         public GameObject CornerParent;
 
+        [HideInInspector]
         public Material PathMat;
 
         Coroutine myRoutine = null;
@@ -103,7 +112,7 @@ namespace UnityFlowVisualizer {
                 try {
                     PathManager pm = this.transform.parent.GetComponent<PathManager>();
                 } catch(System.Exception e) { e.ToString();
-                    Debug.LogError("The Path Info script should have a parent with a Path Manager component.");
+                    Debug.LogError("The Path Group script should have a parent with a Path Manager component.");
                     flag = false;
                 }
                 if(flag) {

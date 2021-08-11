@@ -11,7 +11,7 @@ namespace UnityFlowVisualizer {
         [HideInInspector]
         public static Path Target;
         [HideInInspector]
-        public static PathInfo TargetPathInfo;
+        public static PathGroup TargetPathGroup;
         [HideInInspector]
         private GameObject lastSelect = null;
         [HideInInspector]
@@ -38,13 +38,13 @@ namespace UnityFlowVisualizer {
 
             if (Target == null) {
                 try {
-                    Path info = Selection.activeGameObject.GetComponent<Path>();
-                    if (info != null) Target = info;
+                    Path group = Selection.activeGameObject.GetComponent<Path>();
+                    if (group != null) Target = group;
                     else Target = null;
                 } catch (System.Exception e) { e.ToString(); }
             } else {
                 try {
-                    TargetPathInfo = Target.transform.parent.parent.gameObject.GetComponent<PathInfo>();
+                    TargetPathGroup = Target.transform.parent.parent.gameObject.GetComponent<PathGroup>();
                 } catch (System.Exception e) { e.ToString(); }
             }
 
@@ -80,17 +80,17 @@ namespace UnityFlowVisualizer {
             GUILayout.Space(3);
             GUILayout.BeginHorizontal();
             Node finalStart = null, finalEnd = null, finalEnd2 = null ;
-            if (!TargetPathInfo && Target)
-                TargetPathInfo = Target.ParentPathInfo;
+            if (!TargetPathGroup && Target)
+                TargetPathGroup = Target.ParentPathGroup;
 
-           for (int i = 0 ; i < TargetPathInfo.NodeList.Count;i ++) {
-                if (TargetPathInfo.NodeList[i].ID == Target.Connections[0].StartID)
-                    finalStart = TargetPathInfo.NodeList[i];
-                if (TargetPathInfo.NodeList[i].ID == Target.Connections[Target.Connections.Count-1].EndID)
-                    finalEnd = TargetPathInfo.NodeList[i];
+           for (int i = 0 ; i < TargetPathGroup.NodeList.Count;i ++) {
+                if (TargetPathGroup.NodeList[i].ID == Target.Connections[0].StartID)
+                    finalStart = TargetPathGroup.NodeList[i];
+                if (TargetPathGroup.NodeList[i].ID == Target.Connections[Target.Connections.Count-1].EndID)
+                    finalEnd = TargetPathGroup.NodeList[i];
                 if (Target.Connections.Count >= 2 &&
-                    TargetPathInfo.NodeList[i].ID == Target.Connections[Target.Connections.Count - 2].EndID) {
-                    finalEnd2 = TargetPathInfo.NodeList[i];
+                    TargetPathGroup.NodeList[i].ID == Target.Connections[Target.Connections.Count - 2].EndID) {
+                    finalEnd2 = TargetPathGroup.NodeList[i];
                 }
             }
 
@@ -114,13 +114,13 @@ namespace UnityFlowVisualizer {
             List<Connection> EndConnections = new List<Connection>();
             List<Connection> StartConnections = new List<Connection>();
 
-            if (Target != null && TargetPathInfo != null) {
-                for(int i = 0; i < TargetPathInfo.ConnectionList.Count; i++) {
-                    if (finalEnd.ID == TargetPathInfo.ConnectionList[i].StartID)
-                        StartConnections.Add(TargetPathInfo.ConnectionList[i]);
+            if (Target != null && TargetPathGroup != null) {
+                for(int i = 0; i < TargetPathGroup.ConnectionList.Count; i++) {
+                    if (finalEnd.ID == TargetPathGroup.ConnectionList[i].StartID)
+                        StartConnections.Add(TargetPathGroup.ConnectionList[i]);
 
-                    if (finalEnd2 != null && finalEnd2.ID == TargetPathInfo.ConnectionList[i].StartID)
-                        EndConnections.Add(TargetPathInfo.ConnectionList[i]);
+                    if (finalEnd2 != null && finalEnd2.ID == TargetPathGroup.ConnectionList[i].StartID)
+                        EndConnections.Add(TargetPathGroup.ConnectionList[i]);
                 }
 
             }
@@ -141,11 +141,11 @@ namespace UnityFlowVisualizer {
             GUILayout.EndHorizontal();
 
             scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, false, GUILayout.Width(500), GUILayout.Height(110));
-            if(Target == null || TargetPathInfo == null) {
+            if(Target == null || TargetPathGroup == null) {
                 Rect rect1 = new Rect(0, 0, 500, 110);
                 GUILayout.BeginArea(rect1);
                 if (Target == null) GUILayout.Label("Path not found", centerStyle);
-                if (TargetPathInfo == null) GUILayout.Label("PathInfo not found", centerStyle);
+                if (TargetPathGroup == null) GUILayout.Label("PathGroup not found", centerStyle);
                 else GUILayout.Label("Connection not found", centerStyle);
                 GUILayout.EndArea();
             } else {
@@ -158,14 +158,14 @@ namespace UnityFlowVisualizer {
                         GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
                         if(i == 0 && Target.Connections.Count == 1) {
-                            string[] options = new string[TargetPathInfo.ConnectionList.Count];
+                            string[] options = new string[TargetPathGroup.ConnectionList.Count];
                             int currentIndex = 0;
-                            for(int j = 0; j < TargetPathInfo.ConnectionList.Count; j++) {
-                                options[j] = "[" + j + "] " + TargetPathInfo.ConnectionList[j].Name;
-                                if (Target.Connections[0].ID == TargetPathInfo.ConnectionList[j].ID)
+                            for(int j = 0; j < TargetPathGroup.ConnectionList.Count; j++) {
+                                options[j] = "[" + j + "] " + TargetPathGroup.ConnectionList[j].Name;
+                                if (Target.Connections[0].ID == TargetPathGroup.ConnectionList[j].ID)
                                     currentIndex = j;
                             }
-                            Target.Connections[0] = TargetPathInfo.
+                            Target.Connections[0] = TargetPathGroup.
                                 ConnectionList[EditorGUILayout.Popup(currentIndex, options, GUILayout.Width(116f))];
                         } else if(i == Target.Connections.Count - 1) {
                             string[] options = new string[EndConnections.Count];
@@ -185,11 +185,11 @@ namespace UnityFlowVisualizer {
                         }
 
                         Node startNode = null, endNod = null;
-                        for(int k = 0; k < TargetPathInfo.NodeList.Count; k++) {
-                            if (TargetPathInfo.NodeList[k].ID == Target.Connections[i].StartID)
-                                startNode = TargetPathInfo.NodeList[k];
-                            else if (TargetPathInfo.NodeList[k].ID == Target.Connections[i].EndID)
-                                endNod = TargetPathInfo.NodeList[k];
+                        for(int k = 0; k < TargetPathGroup.NodeList.Count; k++) {
+                            if (TargetPathGroup.NodeList[k].ID == Target.Connections[i].StartID)
+                                startNode = TargetPathGroup.NodeList[k];
+                            else if (TargetPathGroup.NodeList[k].ID == Target.Connections[i].EndID)
+                                endNod = TargetPathGroup.NodeList[k];
                             if (startNode != null && endNod != null) break;
                         }
 
@@ -217,7 +217,7 @@ namespace UnityFlowVisualizer {
                     Rect rect1 = new Rect(0, 0, 500, 110);
                     GUILayout.BeginArea(rect1);
                     if (Target == null) GUILayout.Label("Path not found", centerStyle);
-                    if (TargetPathInfo == null) GUILayout.Label("PathInfo not found", centerStyle);
+                    if (TargetPathGroup == null) GUILayout.Label("PathGroup not found", centerStyle);
                     else GUILayout.Label("Connection not found", centerStyle);
                     GUILayout.EndArea();
                 }
@@ -251,8 +251,8 @@ namespace UnityFlowVisualizer {
 
         public void PathGroupEditorButtonClick() {
             if(Target != null) {
-                Selection.objects = new UnityEngine.Object[] { TargetPathInfo.gameObject };
-                PathGroupEditorGUI.Target = TargetPathInfo;
+                Selection.objects = new UnityEngine.Object[] { TargetPathGroup.gameObject };
+                PathGroupEditorGUI.Target = TargetPathGroup;
             } else {
                 PathGroupEditorGUI.Target = null;
             }
@@ -277,9 +277,9 @@ namespace UnityFlowVisualizer {
 
                 if (!flag && Selection.objects.Length > 0) lastSelect = null;
 
-                Path info = Selection.activeGameObject.GetComponent<Path>();
-                if (info != null) {
-                    Target = info;
+                Path group = Selection.activeGameObject.GetComponent<Path>();
+                if (group != null) {
+                    Target = group;
                 } else { Target = null; TargetID = 0; }
 
             } catch (System.Exception e) {

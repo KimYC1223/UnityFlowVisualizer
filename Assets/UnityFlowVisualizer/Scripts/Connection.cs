@@ -11,24 +11,41 @@ namespace UnityFlowVisualizer {
     [ExecuteInEditMode]
     public class Connection : MonoBehaviour
     {
+        [HideInInspector]
         public int Index;
+
         public string Name;
+        [HideInInspector]
         public string Start;
+        [HideInInspector]
         public Transform StartPos;
+        [HideInInspector]
         public int StartID;
+        [HideInInspector]
         public string End;
+        [HideInInspector]
         public int EndID;
+        [HideInInspector]
         public Transform EndPos;
+        [HideInInspector]
         public int CornerCount;
+        [HideInInspector]
         public int ID;
+        [HideInInspector]
         public CON_TYPE ConType;
+        [HideInInspector]
         public PRESET_TYPE_1_CORNER PresetType1 = PRESET_TYPE_1_CORNER.START;
+        [HideInInspector]
         public PRESET_TYPE_2_CORNER PresetType2 = PRESET_TYPE_2_CORNER.Y;
+        [HideInInspector]
         public PRESET_TYPE_3_CORNER PresetType3 = PRESET_TYPE_3_CORNER.XY1;
+        [HideInInspector]
         public Vector3 Preset2Handler;
+        [HideInInspector]
         public Vector3 Preset3Handler;
+        [HideInInspector]
         public List<Corner> CornerList;
-        public PathInfo ParentPathInfo;
+        public PathGroup ParentPathGroup;
 
         private Tool LastTool = Tool.None;
 
@@ -43,7 +60,10 @@ namespace UnityFlowVisualizer {
                 myRoutine = null;
             }
             try {
-                Corner[] childs = ParentPathInfo.CornerParent.GetComponentsInChildren<Corner>();
+                if (ParentPathGroup == null)
+                    ParentPathGroup = this.transform.parent.parent.GetComponent<PathGroup>();
+
+                Corner[] childs = ParentPathGroup.CornerParent.GetComponentsInChildren<Corner>();
                 CornerList = new List<Corner>();
                 if (childs != null && childs.Length > 0)
                     for (int i = 0; i < childs.Length; i++)
@@ -69,21 +89,21 @@ namespace UnityFlowVisualizer {
 
         public void LateUpdate() {
             if (Start == null || End == null) return;
-            if (ParentPathInfo == null) return;
+            if (ParentPathGroup == null) return;
             //this.transform.localScale = new Vector3(1f, 1f, 1f);
             //this.transform.position = new Vector3(0f, 0f, 0f);
             //this.transform.rotation = new Quaternion(0f, 0f, 0f, 0f);
             //MeshRenderer renderer = GetComponent<MeshRenderer>();
-            //renderer.sharedMaterial.color = ParentPathInfo.PathColor;
+            //renderer.sharedMaterial.color = ParentPathGroup.PathColor;
 
             if (CornerList.Count == 0) {
                 float distance = Vector3.Distance(StartPos.position, EndPos.position);
-                this.transform.localScale = new Vector3(ParentPathInfo.Thickness, ParentPathInfo.Thickness,distance);
+                this.transform.localScale = new Vector3(ParentPathGroup.Thickness, ParentPathGroup.Thickness,distance);
                 this.transform.position = StartPos.position;
                 this.transform.LookAt(EndPos.position);
             } else {
                 float distance = Vector3.Distance(StartPos.position, CornerList[0].transform.position);
-                this.transform.localScale = new Vector3(ParentPathInfo.Thickness, ParentPathInfo.Thickness, distance);
+                this.transform.localScale = new Vector3(ParentPathGroup.Thickness, ParentPathGroup.Thickness, distance);
                 this.transform.position = StartPos.position;
                 this.transform.LookAt(CornerList[0].transform);
             }
@@ -92,9 +112,12 @@ namespace UnityFlowVisualizer {
 
         public IEnumerator checkList() {
             while (true) {
+                if(ParentPathGroup == null) 
+                    ParentPathGroup = this.transform.parent.parent.GetComponent<PathGroup>();
+                
                 this.gameObject.name = Name;
                 yield return new WaitForSeconds(1f);
-                Corner[] childs = ParentPathInfo.CornerParent.GetComponentsInChildren<Corner>();
+                Corner[] childs = ParentPathGroup.CornerParent.GetComponentsInChildren<Corner>();
                 CornerList = new List<Corner>();
                 if (childs != null && childs.Length > 0)
                     for (int i = 0; i < childs.Length; i++)
