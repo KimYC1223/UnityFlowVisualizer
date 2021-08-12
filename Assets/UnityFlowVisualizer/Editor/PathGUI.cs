@@ -19,11 +19,6 @@ namespace UnityFlowVisualizer {
             component = target as Path;
             LastTool = Tools.current;
             Tools.current = Tool.None;
-
-            centerStyle = new GUIStyle("Label");
-            centerStyle.alignment = TextAnchor.MiddleCenter;
-
-            
         }
         public void OnDisable() {
             Tools.current = LastTool;
@@ -32,6 +27,8 @@ namespace UnityFlowVisualizer {
 
         public override void OnInspectorGUI() {
             try {
+                centerStyle = new GUIStyle("Label");
+                centerStyle.alignment = TextAnchor.MiddleCenter;
                 Texture LogoTex = (Texture2D)Resources.Load("UnityFlowVisualizer/Logo/FlowVisualizerLogo", typeof(Texture2D));
                 GUILayout.Label(LogoTex, GUILayout.Width(250));
                 GUI.enabled = false;

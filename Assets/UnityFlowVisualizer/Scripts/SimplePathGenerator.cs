@@ -57,7 +57,7 @@ namespace UnityFlowVisualizer {
             PathList = new List<SimplePath>();
         }
 
-        public GameObject InstantiatePath(Transform Start, Transform End, Color PathColor, float Thickness = 1f) {
+        public GameObject InstantiatePath(Transform Start, Transform End, Color PathColor, float Thickness = 2f) {
             GameObject returnObject = Instantiate(PathPrefab);
             returnObject.transform.position = Start.position;
             returnObject.transform.rotation = Quaternion.identity;
@@ -72,7 +72,7 @@ namespace UnityFlowVisualizer {
             return returnObject;
         }
 
-        public GameObject InstantiatePath(Vector3 Start, Vector3 End, Color PathColor, float Thickness = 1f) {
+        public GameObject InstantiatePath(Vector3 Start, Vector3 End, Color PathColor, float Thickness = 2f) {
             GameObject returnObject = Instantiate(PathPrefab);
             returnObject.transform.position = Start;
             returnObject.transform.rotation = Quaternion.identity;
@@ -87,7 +87,7 @@ namespace UnityFlowVisualizer {
             return returnObject;
         }
 
-        public GameObject InstantiatePath(Transform Parent, Transform Start, Transform End, Color PathColor, float Thickness = 1f) {
+        public GameObject InstantiatePath(Transform Parent, Transform Start, Transform End, Color PathColor, float Thickness = 2f) {
             GameObject returnObject = Instantiate(PathPrefab);
             returnObject.transform.position = Start.position;
             returnObject.transform.rotation = Quaternion.identity;
@@ -103,7 +103,7 @@ namespace UnityFlowVisualizer {
             return returnObject;
         }
 
-        public GameObject InstantiatePath(Transform Parent, Vector3 Start, Vector3 End, Color PathColor, float Thickness = 1f) {
+        public GameObject InstantiatePath(Transform Parent, Vector3 Start, Vector3 End, Color PathColor, float Thickness = 2f) {
             GameObject returnObject = Instantiate(PathPrefab);
             returnObject.transform.position = Start;
             returnObject.transform.rotation = Quaternion.identity;
@@ -149,24 +149,27 @@ namespace UnityFlowVisualizer {
         public GameObject Shooting(SimplePath path, float speed = 0.2f, SHOT_TYPE type = SHOT_TYPE.FLOW_BLUE) {
             GameObject returnObject = Instantiate(ShotPrefabs[(int)type], path.StartPos,Quaternion.identity);
             SimpleShot shot = returnObject.AddComponent<SimpleShot>();
+            shot.transform.localScale = shot.transform.localScale * path.transform.localScale.x;
             shot.StartPos = path.StartPos;
             shot.EndPos = path.EndPos;
             shot.Speed = speed;
             return returnObject;
         }
 
-        public GameObject Shooting(Transform start, Transform end, float speed = 0.2f, SHOT_TYPE type = SHOT_TYPE.FLOW_BLUE) {
+        public GameObject Shooting(Transform start, Transform end, float speed = 0.2f, float size = 1f, SHOT_TYPE type = SHOT_TYPE.FLOW_BLUE) {
             GameObject returnObject = Instantiate(ShotPrefabs[(int)type], start.position, Quaternion.identity);
             SimpleShot shot = returnObject.AddComponent<SimpleShot>();
+            shot.transform.localScale = shot.transform.localScale * size;
             shot.StartPos = start.position;
             shot.EndPos = end.position;
             shot.Speed = speed;
             return returnObject;
         }
 
-        public GameObject Shooting(Vector3 start, Vector3 end, float speed = 0.2f, SHOT_TYPE type = SHOT_TYPE.FLOW_BLUE) {
+        public GameObject Shooting(Vector3 start, Vector3 end, float speed = 0.2f, float size = 1f, SHOT_TYPE type = SHOT_TYPE.FLOW_BLUE) {
             GameObject returnObject = Instantiate(ShotPrefabs[(int)type], start, Quaternion.identity);
             SimpleShot shot = returnObject.AddComponent<SimpleShot>();
+            shot.transform.localScale = shot.transform.localScale * size;
             shot.StartPos = start;
             shot.EndPos = end;
             shot.Speed = speed;

@@ -20,7 +20,7 @@ namespace UnityFlowVisualizer {
         IEnumerator Shooting()
         {
             while(true) {
-                SimplePathGenerator.Instance.Shooting(StartTr, EndTr,1);
+                SimplePathGenerator.Instance.Shooting(StartTr, EndTr,1,2f);
                 yield return new WaitForSeconds(0.35f);
             }
         }

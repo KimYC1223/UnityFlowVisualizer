@@ -8,9 +8,11 @@ namespace UnityFlowVisualizer {
 
     public class FlowEngine : MonoBehaviour
     {
-        public static FlowEngine Shoot(GameObject flowObject, Transform parents, Path path, float speed, float size, float sensitivity = 0.5f ) {
+        public static FlowEngine Shoot(GameObject flowObject, Transform parents, Path path, float speed, float size = 0, float sensitivity = 0.5f ) {
             GameObject shot = Instantiate(flowObject);
             FlowEngine engine = shot.AddComponent<FlowEngine>();
+            if (size == 0) 
+                size = (path.ParentPathGroup.Thickness/0.2f);
             engine.transform.localScale = new Vector3(size,size,size);
             engine.transform.parent = parents;
             engine.Speed = speed;
