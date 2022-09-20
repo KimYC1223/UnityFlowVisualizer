@@ -6,6 +6,8 @@
 
 <a href="https://github.com/KimYC1223/UnityFlowVisualizer/blob/master/LICENSE"><img src="https://img.shields.io/github/license/KimYC1223/UnityFlowVisualizer"></a>
 
+![](https://github.com/KimYC1223/UnityFlowVisualizer/blob/main/DocImg/Demo.gif?raw=true)
+
 ## Development Environment
 
 | Environment          | Version                                                      |
